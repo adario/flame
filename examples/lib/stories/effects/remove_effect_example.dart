@@ -1,12 +1,12 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class RemoveEffectExample extends FlameGame {
+class RemoveEffectExample extends ExampleGame {
   static const description = '''
     Click on any circle to apply a RemoveEffect, which will make the circle
     disappear after a 0.5 second delay.

@@ -1,12 +1,13 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 
-class CollidableAnimationExample extends FlameGame with HasCollisionDetection {
+class CollidableAnimationExample extends ExampleGame
+    with HasCollisionDetection {
   static const description = '''
     In this example you can see four animated birds which are flying straight
     along the same route until they hit either another bird or the wall, which

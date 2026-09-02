@@ -1,10 +1,11 @@
 import 'package:dashbook/dashbook.dart';
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class CustomPainterExample extends FlameGame with TapCallbacks {
+class CustomPainterExample extends ExampleGame with TapCallbacks {
   static const description = '''
     Example demonstration of how to use the CustomPainterComponent.
 

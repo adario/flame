@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class LongPressExample extends FlameGame {
+class LongPressExample extends ExampleGame {
   static const String description = '''
     In this example we show how to use `LongPressCallbacks`.\n\n
     The colored squares will turn red when a long press is recognized,

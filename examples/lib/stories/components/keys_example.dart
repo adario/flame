@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
@@ -68,7 +69,7 @@ class _KeysExampleWidgetState extends State<KeysExampleWidget> {
   }
 }
 
-class KeysExampleGame extends FlameGame {
+class KeysExampleGame extends ExampleGame {
   @override
   FutureOr<void> onLoad() async {
     await super.onLoad();

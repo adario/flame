@@ -1,9 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flame/timer.dart';
 import 'package:flutter/material.dart';
 
-class TimerExample extends FlameGame with TapCallbacks {
+class TimerExample extends ExampleGame with TapCallbacks {
   static const String description = '''
     This example shows how to use the `Timer`.\n\n
     Tap down to start the countdown timer, it will then count to 5 and then stop

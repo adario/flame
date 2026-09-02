@@ -1,10 +1,11 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
 
-class HueEffectExample extends FlameGame {
+class HueEffectExample extends ExampleGame {
   static const String description = '''
 In this example we show how the `HueEffect` can be used.
 Ember will shift its hue over time.

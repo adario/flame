@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class DoubleTapCallbacksExample extends FlameGame with DoubleTapCallbacks {
+class DoubleTapCallbacksExample extends ExampleGame with DoubleTapCallbacks {
   static const String description = '''
   In this example, we show how you can use the `DoubleTapCallbacks` mixin on
   a `Component`. Double tap Ember and see her color changing.

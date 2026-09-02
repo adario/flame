@@ -1,8 +1,8 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 
 enum TextBoxConfigMaxWidth {
@@ -14,7 +14,7 @@ enum TextBoxConfigMaxWidth {
   final double value;
 }
 
-class TextBoxExample extends FlameGame {
+class TextBoxExample extends ExampleGame {
   static const String description =
       'TextBoxComponent reflows text when boxConfig.maxWidth is changed';
 

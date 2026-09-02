@@ -5,7 +5,7 @@ import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 
-class BenchmarkExample extends FlameGame {
+class BenchmarkExample extends FlameGame<BenchmarkWorld> {
   static const description = '''
 See how many SpriteAnimationComponent's your platform can handle before it
 starts to drop in FPS, this is without any sprite batching and such.

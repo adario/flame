@@ -1,11 +1,12 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class DynamicScaleDragExample extends FlameGame {
+class DynamicScaleDragExample extends ExampleGame {
   static const String description = '''
     Demonstrates dynamically adding draggable and scalable components at
     runtime. Use the buttons to spawn components with different interaction

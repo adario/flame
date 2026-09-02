@@ -1,7 +1,7 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 
-class Base64SpriteExample extends FlameGame {
+class Base64SpriteExample extends ExampleGame {
   static const String description = '''
     In this example we load a sprite from the a base64 string and put it into a
     `SpriteComponent`.

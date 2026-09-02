@@ -1,9 +1,9 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class TimerComponentExample extends FlameGame
+class TimerComponentExample extends ExampleGame
     with TapCallbacks, DoubleTapCallbacks {
   static const String description = '''
     This examples showcases the `TimerComponent`.\n\n

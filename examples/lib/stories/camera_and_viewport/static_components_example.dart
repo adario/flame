@@ -1,13 +1,13 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/parallax.dart';
 
-class StaticComponentsExample extends FlameGame with ScrollCallbacks {
+class StaticComponentsExample extends ExampleGame with ScrollCallbacks {
   static const description = '''
   This example shows a parallax which is attached to the viewport (behind the
   world), four Flame logos that are added to the world, and a player added to

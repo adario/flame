@@ -1,12 +1,12 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/math.dart';
 
-class SpawnComponentExample extends FlameGame {
+class SpawnComponentExample extends ExampleGame {
   static const String description =
       'Tap on the screen to start spawning Embers within different shapes.';
 

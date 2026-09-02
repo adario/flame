@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class ScrollExample extends FlameGame with ScrollCallbacks {
+class ScrollExample extends ExampleGame with ScrollCallbacks {
   static const String description = '''
     In this example we show how to use `ScrollCallbacks`.\n\n
     Scroll over the colored squares to scale them. Scroll anywhere else on the

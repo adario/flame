@@ -1,12 +1,12 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/rendering.dart';
 
-class DecoratorHueExample extends FlameGame with TapCallbacks {
+class DecoratorHueExample extends ExampleGame with TapCallbacks {
   static const String description = '''
 This example demonstrates the usage of `HueDecorator` to shift the
 colors of a component.

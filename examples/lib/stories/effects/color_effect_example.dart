@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class ColorEffectExample extends FlameGame {
+class ColorEffectExample extends ExampleGame {
   static const String description = '''
     In this example we show how the `ColorEffect` can be used.
     Ember will constantly pulse in and out of a blue color.

@@ -1,14 +1,14 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flutter/material.dart' as material;
 
-class RotateAroundEffectExample extends FlameGame {
+class RotateAroundEffectExample extends ExampleGame {
   static const description = '''
 This example shows how to use the RotateAroundEffect to rotate a component
 around a fixed point.

@@ -1,15 +1,15 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-class LookAtSmoothExample extends FlameGame {
+class LookAtSmoothExample extends ExampleGame {
   static const description =
       'This example demonstrates how a component can be '
       'made to smoothly rotate towards a target using the angleTo method. '

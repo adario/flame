@@ -1,9 +1,9 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/painting.dart';
 
-class RichTextExample extends FlameGame {
+class RichTextExample extends ExampleGame {
   final TextAlign textAlign;
 
   RichTextExample({this.textAlign = TextAlign.left});

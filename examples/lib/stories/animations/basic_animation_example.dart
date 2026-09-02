@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 
-class BasicAnimationsExample extends FlameGame {
+class BasicAnimationsExample extends ExampleGame<BasicAnimationsWorld> {
   static const description = '''
     Basic example of how to use `SpriteAnimation`s in Flame's.
 

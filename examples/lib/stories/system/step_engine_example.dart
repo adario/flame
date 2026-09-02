@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class StepEngineExample extends FlameGame
+class StepEngineExample extends ExampleGame
     with HasCollisionDetection, HasKeyboardHandlerComponents {
   static const description = '''
     This example demonstrates how the game can be advanced frame by frame using

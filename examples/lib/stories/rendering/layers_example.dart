@@ -1,10 +1,10 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/layers.dart';
 
-class LayerExample extends FlameGame {
+class LayerExample extends ExampleGame {
   static const String description = '''
     In this example we show how layers can be used to produce a shadow effect.
   ''';

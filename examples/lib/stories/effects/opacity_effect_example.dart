@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 
-class OpacityEffectExample extends FlameGame with TapCallbacks {
+class OpacityEffectExample extends ExampleGame with TapCallbacks {
   static const String description = '''
     In this example we show how the `OpacityEffect` can be used in two ways.
     The left Ember will constantly pulse in and out of opacity and the right

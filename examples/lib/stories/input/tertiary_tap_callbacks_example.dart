@@ -1,11 +1,11 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class TertiaryTapCallbacksExample extends FlameGame {
+class TertiaryTapCallbacksExample extends ExampleGame {
   static const String description = '''
 In this example we show how to listen to primary (left), secondary (right),
 and tertiary (middle) tap events at the same time using the `TapCallbacks`,

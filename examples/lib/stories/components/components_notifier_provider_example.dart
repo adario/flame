@@ -1,3 +1,4 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -91,7 +92,7 @@ class Enemy extends CircleComponent with TapCallbacks, Notifier {
   }
 }
 
-class ComponentNotifierExample extends FlameGame {
+class ComponentNotifierExample extends ExampleGame {
   @override
   Future<void> onLoad() async {
     replay();

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
@@ -11,7 +12,7 @@ import 'package:flutter/services.dart';
 /// A game that allows for camera control and displays Tap, Drag & Scroll
 /// events information on the screen, to allow exploration of the 3 coordinate
 /// systems of Flame (global, widget, game).
-class CoordinateSystemsExample extends FlameGame
+class CoordinateSystemsExample extends ExampleGame
     with TapCallbacks, DragCallbacks, ScrollCallbacks, KeyboardEvents {
   static const String description = '''
     Displays event data in all 3 coordinate systems (global, widget and game).

@@ -1,13 +1,13 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class MultipleWorldsExample extends FlameGame {
+class MultipleWorldsExample extends ExampleGame {
   static const description = '''
     This example shows how multiple worlds can have discrete collision
     detection.

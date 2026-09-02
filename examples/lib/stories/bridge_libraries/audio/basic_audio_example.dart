@@ -1,12 +1,12 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_audio/flame_audio.dart';
 import 'package:flutter/painting.dart';
 
-class BasicAudioExample extends FlameGame {
+class BasicAudioExample extends ExampleGame {
   static const String description = '''
     This example showcases the most basic Flame Audio functionalities.
 

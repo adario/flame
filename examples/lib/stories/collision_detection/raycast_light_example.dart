@@ -1,14 +1,14 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class RaycastLightExample extends FlameGame
+class RaycastLightExample extends ExampleGame
     with HasCollisionDetection, TapCallbacks, MouseMoveCallbacks {
   static const description = '''
 In this example the raycast functionality is showcased by using it as a light

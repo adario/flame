@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/stories/input/joystick_player.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/painting.dart';
 
-class JoystickExample extends FlameGame {
+class JoystickExample extends ExampleGame {
   static const String description = '''
     In this example we showcase how to use the joystick by creating simple
     `CircleComponent`s that serve as the joystick's knob and background.

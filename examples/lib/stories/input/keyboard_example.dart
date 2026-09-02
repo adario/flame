@@ -1,11 +1,11 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
-class KeyboardExample extends FlameGame with KeyboardEvents {
+class KeyboardExample extends ExampleGame with KeyboardEvents {
   static const String description = '''
     Example showcasing how to act on keyboard events.
     It also briefly showcases how to create a game without the FlameGame.

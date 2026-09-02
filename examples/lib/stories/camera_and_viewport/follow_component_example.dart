@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -7,12 +8,11 @@ import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/experimental.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class FollowComponentExample extends FlameGame
+class FollowComponentExample extends ExampleGame
     with HasCollisionDetection, HasKeyboardHandlerComponents {
   static const String description = '''
     Move around with W, A, S, D and notice how the camera follows the ember 

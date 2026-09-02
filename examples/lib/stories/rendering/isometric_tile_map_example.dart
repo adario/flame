@@ -1,12 +1,12 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 
-class IsometricTileMapExample extends FlameGame with MouseMoveCallbacks {
+class IsometricTileMapExample extends ExampleGame with MouseMoveCallbacks {
   static const String description = '''
     Shows an example of how to use the `IsometricTileMapComponent`.\n\n
     Move the mouse over the board to see a selector appearing on the tiles.

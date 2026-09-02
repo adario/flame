@@ -1,13 +1,13 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame_noise/flame_noise.dart';
 import 'package:flutter/material.dart';
 
-class MoveEffectExample extends FlameGame {
+class MoveEffectExample extends ExampleGame {
   static const description = '''
     Top square has `MoveEffect.to` effect that makes the component move along a
     straight line back and forth. The effect uses a non-linear progression

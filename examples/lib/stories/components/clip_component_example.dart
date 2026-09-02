@@ -1,7 +1,7 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 
 class TappableEmber extends Ember with TapCallbacks {
   TappableEmber({required Vector2 position, required Vector2 size})
@@ -14,7 +14,7 @@ class TappableEmber extends Ember with TapCallbacks {
   }
 }
 
-class ClipComponentExample extends FlameGame {
+class ClipComponentExample extends ExampleGame {
   static const String description =
       '''Tap on the objects to increase their size and see how the clip component
 works.''';

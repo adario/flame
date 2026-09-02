@@ -1,15 +1,15 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/stories/input/joystick_player.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-class JoystickAdvancedExample extends FlameGame with HasCollisionDetection {
+class JoystickAdvancedExample extends ExampleGame with HasCollisionDetection {
   static const String description = '''
     In this example we showcase how to use the joystick by creating 
     `SpriteComponent`s that serve as the joystick's knob and background.

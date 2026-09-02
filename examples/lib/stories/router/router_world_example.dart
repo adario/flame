@@ -1,3 +1,4 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
@@ -7,7 +8,7 @@ import 'package:flame/rendering.dart';
 import 'package:flutter/material.dart' show Colors;
 import 'package:flutter/rendering.dart';
 
-class RouterWorldExample extends FlameGame {
+class RouterWorldExample extends ExampleGame {
   static const description = '''
 This example shows how to use the RouterComponent to navigate between
 different worlds and pages.

@@ -1,7 +1,8 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/game.dart';
 import 'package:flame_tiled/flame_tiled.dart';
 
-class FlameTiledAnimationExample extends FlameGame {
+class FlameTiledAnimationExample extends ExampleGame {
   static const String description = '''
     Loads and displays an animated Tiled map.
   ''';

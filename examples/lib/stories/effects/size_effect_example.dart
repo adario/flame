@@ -1,13 +1,13 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/animation.dart';
 
-class SizeEffectExample extends FlameGame with TapCallbacks {
+class SizeEffectExample extends ExampleGame with TapCallbacks {
   static const String description = '''
     The `SizeEffect` changes the size of the component, the sizes of the
     children will stay the same.

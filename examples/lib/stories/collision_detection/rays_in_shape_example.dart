@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flutter/material.dart';
 
 const playArea = Rect.fromLTRB(-100, -100, 100, 100);
 
-class RaysInShapeExample extends FlameGame {
+class RaysInShapeExample extends ExampleGame {
   static const description = '''
 In this example we showcase the raytrace functionality where you can see whether
 the rays are inside the shapes or not. Click to change the shape that the rays

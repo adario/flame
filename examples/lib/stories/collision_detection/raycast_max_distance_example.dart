@@ -1,14 +1,14 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
 import 'package:flame_noise/flame_noise.dart';
 import 'package:flutter/material.dart';
 
-class RaycastMaxDistanceExample extends FlameGame with HasCollisionDetection {
+class RaycastMaxDistanceExample extends ExampleGame with HasCollisionDetection {
   static const description = '''
 This examples showcases how raycast APIs can be used to detect hits within certain range.
 ''';

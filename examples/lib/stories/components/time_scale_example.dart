@@ -1,15 +1,15 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/image_composition.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/rendering.dart';
 
-class TimeScaleExample extends FlameGame
+class TimeScaleExample extends ExampleGame
     with HasTimeScale, HasCollisionDetection {
   static const description =
       'This example shows how time scale can be used to control game speed.';

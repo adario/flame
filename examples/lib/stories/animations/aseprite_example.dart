@@ -1,7 +1,7 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 
-class AsepriteExample extends FlameGame {
+class AsepriteExample extends ExampleGame {
   static const String description = '''
     This example shows how to load animations from an Aseprite json file and a
     sprite sheet. There is no interaction on this example.

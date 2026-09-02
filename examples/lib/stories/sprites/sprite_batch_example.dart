@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 
-class SpriteBatchExample extends FlameGame {
+class SpriteBatchExample extends ExampleGame {
   static const String description = '''
     In this example we show how to render many sprites in a batch for
     efficiency, this is done with `SpriteBatch` and the `SpriteBatchComponent`.

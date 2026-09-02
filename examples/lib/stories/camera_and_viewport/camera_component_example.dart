@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
@@ -8,7 +9,7 @@ import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flutter/painting.dart';
 
-class CameraComponentExample extends FlameGame<AntWorld> with DragCallbacks {
+class CameraComponentExample extends ExampleGame<AntWorld> with DragCallbacks {
   static const description = '''
     This example shows how a camera can be dynamically added into a game using
     a CameraComponent.

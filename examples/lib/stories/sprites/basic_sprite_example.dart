@@ -1,7 +1,7 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 
-class BasicSpriteExample extends FlameGame {
+class BasicSpriteExample extends ExampleGame {
   static const String description = '''
     In this example we load a sprite from the assets folder and put it into a
     `SpriteComponent`.

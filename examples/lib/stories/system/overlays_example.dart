@@ -1,10 +1,11 @@
 import 'package:dashbook/dashbook.dart';
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class OverlaysExample extends FlameGame with TapCallbacks {
+class OverlaysExample extends ExampleGame with TapCallbacks {
   static const String description = '''
     In this example we show how the overlays system can be used.\n\n
     If you tap the canvas the game will start and if you tap it again it will

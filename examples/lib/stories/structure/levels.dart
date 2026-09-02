@@ -1,12 +1,12 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/material.dart';
 
-class LevelsExample extends FlameGame {
+class LevelsExample extends ExampleGame {
   static const String description = '''
     In this example we showcase how you can utilize World components as levels.
     Press the different buttons in the bottom to change levels and press in the

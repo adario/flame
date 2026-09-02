@@ -1,8 +1,8 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:meta/meta.dart';
 
-class Ember<T extends FlameGame> extends SpriteAnimationComponent
+class Ember<T extends ExampleGame> extends SpriteAnimationComponent
     with HasGameRef<T> {
   Ember({super.position, Vector2? size, super.priority, super.key})
     : super(

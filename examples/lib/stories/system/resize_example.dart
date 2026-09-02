@@ -1,7 +1,7 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 
 class ResizingRectangle extends RectangleComponent {
   ResizingRectangle()
@@ -17,7 +17,7 @@ class ResizingRectangle extends RectangleComponent {
   }
 }
 
-class ResizeExampleGame extends FlameGame {
+class ResizeExampleGame extends ExampleGame {
   ResizeExampleGame() : super(children: [ResizingRectangle()]);
 
   static const description = '''

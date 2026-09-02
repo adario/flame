@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flutter/animation.dart';
 
-class RotateEffectExample extends FlameGame {
+class RotateEffectExample extends ExampleGame {
   static const description = '''
     The outer rim rotates at a different speed forward and reverse, and
     uses the "ease" animation curve.

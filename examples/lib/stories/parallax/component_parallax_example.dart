@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/parallax.dart';
 
-class ComponentParallaxExample extends FlameGame {
+class ComponentParallaxExample extends ExampleGame {
   static const String description = '''
     Shows how to do initiation and loading of assets from within an extended
     `ParallaxComponent`. This example uses a `FixedResolutionViewport` which

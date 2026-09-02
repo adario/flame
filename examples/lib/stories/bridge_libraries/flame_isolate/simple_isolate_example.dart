@@ -1,14 +1,14 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame_isolate/flame_isolate.dart';
 import 'package:flutter/material.dart';
 
-class SimpleIsolateExample extends FlameGame {
+class SimpleIsolateExample extends ExampleGame {
   static const String description = '''
     This example showcases a simple FlameIsolate example, making it easy to 
     continually run heavy load without stutter.

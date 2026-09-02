@@ -1,14 +1,14 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 
-class RaytraceExample extends FlameGame
+class RaytraceExample extends ExampleGame
     with HasCollisionDetection, MouseMoveCallbacks, TapCallbacks {
   static const description = '''
 In this example the raytrace functionality is showcased.

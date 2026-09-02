@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'dart:ui' as ui;
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
 
-class ParticlesExample extends FlameGame {
+class ParticlesExample extends ExampleGame {
   static const String description = '''
     Showcases the declarative particle system. Every effect is built from
     ParticleEmitterComponents: reusable ParticleEmitter presets describe what

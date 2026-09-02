@@ -1,9 +1,9 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/layout.dart';
 
-class AlignComponentExample extends FlameGame {
+class AlignComponentExample extends ExampleGame {
   static const String description = '''
     In this example the AlignComponent is used to arrange the circles
     so that there is one in the middle and 8 more surrounding it in

@@ -1,14 +1,14 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 
 enum Shapes { circle, rectangle, polygon }
 
-class GestureHitboxesExample extends FlameGame {
+class GestureHitboxesExample extends ExampleGame {
   static const description = '''
     Tap to create a PositionComponent with a randomly shaped hitbox.
     You can then hover over to shapes to see that they receive the hover events

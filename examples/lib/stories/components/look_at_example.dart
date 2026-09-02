@@ -1,16 +1,16 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/sprite.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-class LookAtExample extends FlameGame<_TapWorld>
+class LookAtExample extends ExampleGame<_TapWorld>
     with HasKeyboardHandlerComponents {
   static const description =
       'This example demonstrates how a component can be '

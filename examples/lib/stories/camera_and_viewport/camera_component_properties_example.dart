@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 
-class CameraComponentPropertiesExample extends FlameGame {
+class CameraComponentPropertiesExample extends ExampleGame {
   static const description = '''
     This example uses FixedSizeViewport which is dynamically sized and 
     positioned based on the size of the game widget.

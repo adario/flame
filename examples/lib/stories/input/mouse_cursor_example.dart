@@ -1,11 +1,11 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-class MouseCursorExample extends FlameGame with MouseMoveCallbacks {
+class MouseCursorExample extends ExampleGame with MouseMoveCallbacks {
   static const String description = '''
     Example showcasing the ability to change the game cursor in runtime
     hover the little square to see the cursor changing

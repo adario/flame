@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 
-class CombinedEffectExample extends FlameGame {
+class CombinedEffectExample extends ExampleGame {
   static const String description = '''
     A combination of effects, consisting of a move effect, a rotate effect, and
     a scale effect. The combination of effects then runs in the opposite order

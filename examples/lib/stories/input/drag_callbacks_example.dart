@@ -1,9 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart' show Colors;
 
-class DragCallbacksExample extends FlameGame {
+class DragCallbacksExample extends ExampleGame {
   static const String description = '''
     In this example we show you can use the `DragCallbacks` mixin on
     `PositionComponent`s. Drag around the Embers and see their position

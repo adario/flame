@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/stories/experimental/layout_component_example_size.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class LayoutComponentExample3 extends FlameGame with DragCallbacks {
+class LayoutComponentExample3 extends ExampleGame with DragCallbacks {
   LayoutComponentExample3({
     required this.demoSize,
   });

@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class TapCallbacksExample extends FlameGame {
+class TapCallbacksExample extends ExampleGame {
   static const String description = '''
     In this example we show the `TapCallbacks` mixin functionality. You can add
     the `TapCallbacks` mixin to any `PositionComponent`.\n\n

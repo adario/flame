@@ -1,9 +1,9 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flutter/painting.dart';
 
-class AdvancedButtonExample extends FlameGame {
+class AdvancedButtonExample extends ExampleGame {
   static const String description =
       '''This example shows how you can use a button with different states''';
 

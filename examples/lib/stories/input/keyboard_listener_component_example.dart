@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/services.dart';
 
-class KeyboardListenerComponentExample extends FlameGame
+class KeyboardListenerComponentExample extends ExampleGame
     with HasKeyboardHandlerComponents {
   static const String description = '''
     Similar to the default Keyboard example, but shows a different

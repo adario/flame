@@ -1,8 +1,8 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/sprite.dart';
 
-class SpriteSheetExample extends FlameGame {
+class SpriteSheetExample extends ExampleGame {
   static const String description = '''
     In this example we show how to load images and how to create animations from
     sprite sheets.

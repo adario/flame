@@ -1,10 +1,10 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 
-class SkipTextBoxComponentExample extends FlameGame {
+class SkipTextBoxComponentExample extends ExampleGame {
   static const String description = '''
     On this example, click on the "Skip" button to display all the text at once.
   ''';

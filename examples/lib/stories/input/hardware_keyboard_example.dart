@@ -1,11 +1,11 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 
-class HardwareKeyboardExample extends FlameGame {
+class HardwareKeyboardExample extends ExampleGame {
   static const String description = '''
     This example uses the HardwareKeyboardDetector mixin in order to keep
     track of which keys on a keyboard are currently pressed.

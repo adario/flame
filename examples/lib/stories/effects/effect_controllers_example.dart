@@ -1,11 +1,12 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/camera.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 
-class EffectControllersExample extends FlameGame {
+class EffectControllersExample extends ExampleGame {
   static const description = '''
     This page demonstrates application of various non-standard effect 
     controllers.

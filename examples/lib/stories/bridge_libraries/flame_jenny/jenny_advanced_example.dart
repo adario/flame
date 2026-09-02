@@ -1,15 +1,15 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:examples/stories/bridge_libraries/flame_jenny/components/dialogue_controller_component.dart';
 import 'package:examples/stories/bridge_libraries/flame_jenny/components/menu_button.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/services.dart';
 import 'package:jenny/jenny.dart';
 
-class JennyAdvancedExample extends FlameGame {
+class JennyAdvancedExample extends ExampleGame {
   static const String description = '''
     This is an advanced example of how to use the Jenny Package. 
     It includes implementing dialogue choices, setting custom variables,

@@ -1,8 +1,8 @@
 import 'dart:ui' as ui;
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 import 'package:flame/particles.dart';
 import 'package:flutter/material.dart' hide Image;
@@ -19,7 +19,7 @@ enum ParticleEffect {
   bubbles,
 }
 
-class ParticlesInteractiveExample extends FlameGame with DragCallbacks {
+class ParticlesInteractiveExample extends ExampleGame with DragCallbacks {
   static const description =
       'Drag around the canvas to paint with particles, and pick an effect in '
       'the properties panel (the knobs icon in the top right) to try the '

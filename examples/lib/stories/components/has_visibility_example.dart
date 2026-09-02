@@ -1,9 +1,9 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart' hide Timer;
-import 'package:flame/game.dart';
 
-class HasVisibilityExample extends FlameGame {
+class HasVisibilityExample extends ExampleGame {
   static const String description = '''
     In this example we use the `HasVisibility` mixin to toggle the
     visibility of a component without removing it from the parent

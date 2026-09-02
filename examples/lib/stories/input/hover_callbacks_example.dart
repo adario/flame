@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class HoverCallbacksExample extends FlameGame {
+class HoverCallbacksExample extends ExampleGame {
   static const String description = '''
     This example shows how to use `HoverCallbacks`s.\n\n
     Add more squares by clicking and hover them to change their color.

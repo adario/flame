@@ -1,8 +1,8 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 
-class ImageResizeExample extends FlameGame {
+class ImageResizeExample extends ExampleGame {
   ImageResizeExample(this.sizeTarget);
 
   static const String description = '''

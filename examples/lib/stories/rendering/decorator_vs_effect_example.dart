@@ -1,12 +1,12 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/commons/ember.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/game.dart';
 import 'package:flame/rendering.dart';
 import 'package:flutter/widgets.dart';
 
-class DecoratorVsEffectExample extends FlameGame {
+class DecoratorVsEffectExample extends ExampleGame {
   static const String description = '''
 This example demonstrates the difference between using an `Effect` and a
 `Decorator` for group transparency.

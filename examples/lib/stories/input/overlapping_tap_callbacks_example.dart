@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class OverlappingTapCallbacksExample extends FlameGame {
+class OverlappingTapCallbacksExample extends ExampleGame {
   static const String description = '''
     In this example we show you that events can choose to continue propagating
     to underlying components. The middle green square continue to propagate the

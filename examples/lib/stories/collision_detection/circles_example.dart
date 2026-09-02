@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart' hide Image, Draggable;
 
-class CirclesExample extends FlameGame {
+class CirclesExample extends ExampleGame {
   static const description = '''
     This example will create a circle every time you tap on the screen. It will
     have the initial velocity towards the center of the screen and if it touches

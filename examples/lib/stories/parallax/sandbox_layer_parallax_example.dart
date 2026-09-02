@@ -1,9 +1,9 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/parallax.dart';
 import 'package:flutter/painting.dart';
 
-class SandboxLayerParallaxExample extends FlameGame {
+class SandboxLayerParallaxExample extends ExampleGame {
   static const String description = '''
     In this example, properties of a layer can be changed to preview the
     different combination of values. You can change the properties by pressing

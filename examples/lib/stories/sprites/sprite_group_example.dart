@@ -1,10 +1,10 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 
 enum ButtonState { unpressed, pressed }
 
-class SpriteGroupExample extends FlameGame {
+class SpriteGroupExample extends ExampleGame {
   static const String description = '''
     In this example we show how a `SpriteGroupComponent` can be used to create
     a button which displays different sprites depending on whether it is pressed

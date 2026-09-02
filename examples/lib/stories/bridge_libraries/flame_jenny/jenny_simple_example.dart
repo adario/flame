@@ -1,10 +1,11 @@
+import 'package:examples/commons/commons.dart';
 import 'package:examples/stories/bridge_libraries/flame_jenny/components/dialogue_controller_component.dart';
 import 'package:examples/stories/bridge_libraries/flame_jenny/components/menu_button.dart';
 import 'package:flame/game.dart';
 import 'package:flutter/services.dart';
 import 'package:jenny/jenny.dart';
 
-class JennySimpleExample extends FlameGame {
+class JennySimpleExample extends ExampleGame {
   static const String description = '''
     This is a simple example of how to use the Jenny Package. 
     It includes instantiating YarnProject and parsing a .yarn script.

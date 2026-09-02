@@ -1,3 +1,4 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
 import 'package:flame/events.dart';
@@ -8,7 +9,7 @@ void main() {
   runApp(GameWidget(game: GlowEffectExample()));
 }
 
-class GlowEffectExample extends FlameGame with TapCallbacks {
+class GlowEffectExample extends ExampleGame with TapCallbacks {
   static const String description = '''
     In this example we show how the `GlowEffect` can be used.
   ''';

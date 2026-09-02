@@ -1,11 +1,11 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/geometry.dart';
 
-class SequenceEffectExample extends FlameGame {
+class SequenceEffectExample extends ExampleGame {
   static const String description = '''
     Sequence of effects, consisting of a move effect, a rotate effect, another
     move effect, a scale effect, and then one more move effect. The sequence

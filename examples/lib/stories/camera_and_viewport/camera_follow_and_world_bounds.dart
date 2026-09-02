@@ -1,13 +1,13 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/game.dart';
 import 'package:flame/input.dart';
 import 'package:flutter/services.dart';
 
-class CameraFollowAndWorldBoundsExample extends FlameGame
+class CameraFollowAndWorldBoundsExample extends ExampleGame
     with HasKeyboardHandlerComponents {
   static const description = '''
     This example demonstrates camera following the player, but also obeying the

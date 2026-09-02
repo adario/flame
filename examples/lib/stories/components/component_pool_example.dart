@@ -1,11 +1,11 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 
-class ComponentPoolExample extends FlameGame {
+class ComponentPoolExample extends ExampleGame {
   static const String description =
       'Tap on the screen to spawn a burst of pooled balls. '
       'Watch the stats to see active vs pooled balls and observe '

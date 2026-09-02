@@ -1,8 +1,8 @@
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
-import 'package:flame/game.dart';
 
-class ImageBrightnessExample extends FlameGame {
+class ImageBrightnessExample extends ExampleGame {
   ImageBrightnessExample({
     required this.brightness,
   });

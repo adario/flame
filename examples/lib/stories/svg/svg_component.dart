@@ -1,8 +1,8 @@
 import 'dart:math';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/events.dart';
-import 'package:flame/game.dart';
 import 'package:flame_svg/flame_svg.dart';
 
 class Player extends SvgComponent with HasGameRef<SvgComponentExample> {
@@ -67,7 +67,7 @@ class Balloons extends SvgComponent with HasGameRef<SvgComponentExample> {
   }
 }
 
-class SvgComponentExample extends FlameGame {
+class SvgComponentExample extends ExampleGame {
   static const description = '''
       Simple game showcasing how to use SVGs inside a flame game. This game 
       uses several SVGs for its graphics. Click or touch the screen to make the 

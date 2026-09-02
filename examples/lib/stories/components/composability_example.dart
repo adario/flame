@@ -1,10 +1,10 @@
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 
-class ComposabilityExample extends FlameGame {
+class ComposabilityExample extends ExampleGame {
   static const String description = '''
     In this example we showcase how you can add children to a component and how
     they transform together with their parent, if the parent is a

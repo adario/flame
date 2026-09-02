@@ -1,13 +1,13 @@
 import 'dart:async';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/effects.dart';
-import 'package:flame/game.dart';
 import 'package:flame/palette.dart';
 import 'package:flame/text.dart';
 import 'package:flutter/material.dart';
 
-class TextExample extends FlameGame {
+class TextExample extends ExampleGame {
   static const String description = '''
     In this example we show different ways of rendering text.
   ''';

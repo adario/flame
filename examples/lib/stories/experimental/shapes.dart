@@ -1,11 +1,11 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame/components.dart';
 import 'package:flame/experimental.dart';
-import 'package:flame/game.dart';
 
-class ShapesExample extends FlameGame {
+class ShapesExample extends ExampleGame {
   static const description = '''
     This example shows multiple raw `Shape`s, and random points whose color
     should match the colors of the shapes that they fall in. Points that are

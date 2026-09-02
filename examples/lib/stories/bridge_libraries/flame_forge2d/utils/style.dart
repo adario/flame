@@ -1,7 +1,8 @@
 import 'dart:math' as math;
-import 'dart:ui';
 
+import 'package:examples/commons/commons.dart';
 import 'package:flame_forge2d/flame_forge2d.dart';
+import 'package:flutter/material.dart';
 
 /// The palette that the Forge2D examples share, matching the one used by the
 /// Forge2D package's own examples.
@@ -100,7 +101,7 @@ mixin GlowingBody on BodyComponent {
 
 /// The base game for the Forge2D examples, which gives them the shared dark
 /// background.
-class Forge2DExampleGame extends Forge2DGame {
+class Forge2DExampleGame extends Forge2DGame with FpsText<Forge2DWorld> {
   /// These examples are laid out for a screen that shows tens of meters, so
   /// they pin the rendering scale they were written for rather than following
   /// the default. See the package example for a world at the default scale.
@@ -113,4 +114,10 @@ class Forge2DExampleGame extends Forge2DGame {
 
   @override
   Color backgroundColor() => ExampleColors.background;
+
+  @override
+  void update(double dt) {
+    super.update(dt);
+    addFpsText();
+  }
 }
