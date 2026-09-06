@@ -18,3 +18,16 @@ extension OffsetExtension on Offset {
   /// Creates a [Rect] starting in origin and going the [Offset]
   Rect toRect() => Rect.fromLTWH(0, 0, dx, dy);
 }
+
+extension FractEquals on Offset {
+  /// Returns true if the two offsets are equal up to a certain number
+  /// of decimal places; use zero for integral comparison.
+  bool fractEquals(Offset other, {int digits = 3}) {
+    assert(digits >= 0, 'The number of digits must be non-negative.');
+    if (digits == 0) {
+      return dx.toInt() == other.dx.toInt() && dy.toInt() == other.dy.toInt();
+    }
+    return dx.toStringAsFixed(digits) == other.dx.toStringAsFixed(digits) &&
+        dy.toStringAsFixed(digits) == other.dy.toStringAsFixed(digits);
+  }
+}

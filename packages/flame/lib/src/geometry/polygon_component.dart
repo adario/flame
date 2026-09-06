@@ -93,6 +93,46 @@ class PolygonComponent extends ShapeComponent {
          children: children,
        );
 
+  /// With this constructor you create a [PolygonComponent] from the first
+  /// contour of a [Path].
+  PolygonComponent.contour(
+    Path path, {
+    double granularity = 2.0,
+    Vector2? position,
+    Vector2? scale,
+    double? angle,
+    Anchor? anchor,
+    int? priority,
+    Paint? paint,
+    List<Paint>? paintLayers,
+    ComponentKey? key,
+    List<Component>? children,
+  }) : this(
+         pathContourToVertices(path, granularity),
+         position: position,
+         size: path.getBounds().size.toVector2(),
+         angle: angle,
+         anchor: anchor,
+         scale: scale,
+         priority: priority,
+         paint: paint,
+         paintLayers: paintLayers,
+         shrinkToBounds: false,
+         key: key,
+         children: children,
+       );
+
+  @internal
+  static List<Vector2> pathContourToVertices(Path path, double granularity) {
+    final contours = path.walkContours(null, granularity);
+    assert(contours.isNotEmpty, 'Empty path contours');
+    final vertices = contours.first.map((o) => o.toVector2()).toList();
+    if (vertices.length > 1 && vertices.first == vertices.last) {
+      vertices.removeLast();
+    }
+    return vertices;
+  }
+
   /// With this constructor you create a regular (equiangular and equilateral)
   /// polygon from number of sides and radius anywhere in the 2d-space. It will
   /// automatically calculate the [size] of the Polygon (the bounding box) if no
@@ -130,10 +170,7 @@ class PolygonComponent extends ShapeComponent {
        );
 
   @internal
-  static List<Vector2> normalsToVertices(
-    List<Vector2> normals,
-    Vector2 size,
-  ) {
+  static List<Vector2> normalsToVertices(List<Vector2> normals, Vector2 size) {
     final halfSize = size / 2;
     return normals
         .map(
@@ -205,10 +242,12 @@ class PolygonComponent extends ShapeComponent {
         // become counterclockwise.
         _reverseList(_globalVertices);
       }
-      _cachedGlobalVertices.updateCache<dynamic>(
-        _globalVertices,
-        <dynamic>[position.clone(), size.clone(), scale.clone(), angle],
-      );
+      _cachedGlobalVertices.updateCache<dynamic>(_globalVertices, <dynamic>[
+        position.clone(),
+        size.clone(),
+        scale.clone(),
+        angle,
+      ]);
     }
     return _cachedGlobalVertices.value!;
   }
