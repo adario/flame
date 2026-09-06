@@ -1,6 +1,7 @@
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
+import 'package:flame/extensions.dart';
 import 'package:flame/game.dart' show Transform2D, Vector2;
 import 'package:flame/src/cache/matrix_pool.dart' show pathTransform;
 import 'package:flame/src/extensions/offset.dart' show FractEquals;
@@ -28,6 +29,24 @@ extension PathExtension on Path {
     }
     final t = Transform2D()..scale = scale;
     return transform32(t.transformMatrix.storage);
+  }
+
+  Path get toOrigin {
+    final box = getBounds();
+    final origin = box.topLeft;
+    if (origin != .zero) {
+      return shift(-origin);
+    }
+    return this;
+  }
+
+  Path get centered {
+    final box = getBounds();
+    final center = box.center;
+    if (center != .zero) {
+      return toOrigin.shift(-(box.size.toOffset() * 0.5));
+    }
+    return this;
   }
 }
 
