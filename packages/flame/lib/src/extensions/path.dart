@@ -1,6 +1,7 @@
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
+import 'package:flame/game.dart' show Transform2D, Vector2;
 import 'package:flame/src/cache/matrix_pool.dart' show pathTransform;
 import 'package:flame/src/extensions/offset.dart' show FractEquals;
 
@@ -9,6 +10,24 @@ export 'dart:ui' show Path;
 extension PathExtension on Path {
   Path transform32(Float32List matrix4) {
     return pathTransform(this, matrix4);
+  }
+
+  Path resizeTo(Size size, {bool keepRatio = false}) {
+    assert(
+      size.width > 0 && size.height > 0,
+      'Resizing with invalid size: $size',
+    );
+    final box = getBounds();
+    final scale = Vector2(size.width / box.width, size.height / box.height);
+    if (keepRatio) {
+      if (box.height > box.width) {
+        scale.setValues(scale.y, scale.y);
+      } else {
+        scale.setValues(scale.x, scale.x);
+      }
+    }
+    final t = Transform2D()..scale = scale;
+    return transform32(t.transformMatrix.storage);
   }
 }
 
