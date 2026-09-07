@@ -1,8 +1,9 @@
+// ignore_for_file: lines_longer_than_80_chars, avoid_print
+
 import 'dart:math';
 import 'dart:ui';
 
 import 'package:flame/collisions.dart';
-import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/geometry.dart';
 import 'package:test/test.dart';
@@ -43,13 +44,13 @@ List<Vector2> pathVertices(Path path) {
 }
 
 class _RayCase {
-  _RayCase(this.ray, this.expectsHit);
+  _RayCase(this.ray, {required this.expectsHit});
 
   final Ray2 ray;
   final bool expectsHit;
 }
 
-List<_RayCase> randomRayCases(
+List<_RayCase> _randomRayCases(
   PolygonHitbox polygon,
   int count,
   Random random, {
@@ -79,7 +80,7 @@ List<_RayCase> randomRayCases(
             random.nextDouble() * 2 - 1,
           ).normalized(),
         ),
-        true,
+        expectsHit: true,
       ),
     );
   }
@@ -98,13 +99,15 @@ List<_RayCase> randomRayCases(
           direction: (pointsTowardPolygon ? target - origin : origin - target)
               .normalized(),
         ),
-        pointsTowardPolygon,
+        expectsHit: pointsTowardPolygon,
       ),
     );
   }
 
   return cases;
 }
+
+typedef BatchResult = (int, int);
 
 void main() {
   test('does not classify an outside vertex hit as inside', () {
@@ -160,144 +163,183 @@ void main() {
   });
 
   test('compares both modes over a concave polygon batch', () {
-    const hitboxCount = 256;
-    final vertices = pathVertices(flamePath());
-    final template = PolygonHitbox(
-      vertices.map((vertex) => vertex.clone()).toList(),
-    );
-    final random = Random(0);
-    final positions = [
-      for (var index = 0; index < hitboxCount; index++)
-        Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
-    ];
-    final hitboxes = [
-      for (var index = 0; index < hitboxCount; index++)
-        PolygonHitbox(
-          vertices.map((vertex) => vertex.clone()).toList(),
-          position: positions[index].clone(),
-        ),
-    ];
-    final rayCases = randomRayCases(template, hitboxCount, Random(1));
-    final rays = [
-      for (var index = 0; index < hitboxCount; index++)
-        Ray2(
-          origin: rayCases[index].ray.origin + positions[index],
-          direction: rayCases[index].ray.direction,
-        ),
-    ];
-    final expectedHitCount = rayCases
-        .where((rayCase) => rayCase.expectsHit)
-        .length;
+    BatchResult runTest(int hitboxCount) {
+      final vertices = pathVertices(flamePath());
+      final template = PolygonHitbox(
+        vertices.map((vertex) => vertex.clone()).toList(),
+      );
+      final random = Random(0);
+      final positions = [
+        for (var index = 0; index < hitboxCount; index++)
+          Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
+      ];
+      final hitboxes = [
+        for (var index = 0; index < hitboxCount; index++)
+          PolygonHitbox(
+            vertices.map((vertex) => vertex.clone()).toList(),
+            position: positions[index].clone(),
+          ),
+      ];
+      final rayCases = _randomRayCases(template, hitboxCount, Random(1));
+      final rays = [
+        for (var index = 0; index < hitboxCount; index++)
+          Ray2(
+            origin: rayCases[index].ray.origin + positions[index],
+            direction: rayCases[index].ray.direction,
+          ),
+      ];
+      final expectedHitCount = rayCases
+          .where((rayCase) => rayCase.expectsHit)
+          .length;
 
-    int run(bool useContainment) {
-      for (final hitbox in hitboxes) {
-        hitbox.useContainment = useContainment;
-      }
-
-      var hitCount = 0;
-      for (var index = 0; index < hitboxes.length; index++) {
-        if (hitboxes[index].rayIntersection(rays[index]) != null) {
-          hitCount++;
+      int run({required bool useContainment}) {
+        for (final hitbox in hitboxes) {
+          hitbox.useContainment = useContainment;
         }
+
+        var hitCount = 0;
+        for (var index = 0; index < hitboxes.length; index++) {
+          if (hitboxes[index].rayIntersection(rays[index]) != null) {
+            hitCount++;
+          }
+        }
+        return hitCount;
       }
-      return hitCount;
+
+      final legacyStopwatch = Stopwatch()..start();
+      final legacyHitCount = run(useContainment: false);
+      legacyStopwatch.stop();
+
+      final containmentStopwatch = Stopwatch()..start();
+      final containmentHitCount = run(useContainment: true);
+      containmentStopwatch.stop();
+
+      expect(legacyHitCount, expectedHitCount);
+      expect(containmentHitCount, expectedHitCount);
+      expect(
+        rays.map((ray) => ray.direction.toString()).toSet(),
+        hasLength(hitboxCount),
+      );
+      expect(
+        positions.map((position) => position.toString()).toSet(),
+        hasLength(hitboxCount),
+      );
+      final result = (
+        legacyStopwatch.elapsedMicroseconds,
+        containmentStopwatch.elapsedMicroseconds,
+      );
+      print(
+        'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> legacy: ${result.$1}µs, containment: ${result.$2}µs',
+      );
+      return result;
     }
 
-    final legacyStopwatch = Stopwatch()..start();
-    final legacyHitCount = run(false);
-    legacyStopwatch.stop();
-
-    final containmentStopwatch = Stopwatch()..start();
-    final containmentHitCount = run(true);
-    containmentStopwatch.stop();
-
-    expect(legacyHitCount, expectedHitCount);
-    expect(containmentHitCount, expectedHitCount);
-    expect(
-      rays.map((ray) => ray.direction.toString()).toSet(),
-      hasLength(hitboxCount),
-    );
-    expect(
-      positions.map((position) => position.toString()).toSet(),
-      hasLength(hitboxCount),
-    );
+    var legacy = 0;
+    var containment = 0;
+    const numRuns = 32;
+    for (var index = 0; index < numRuns; ++index) {
+      final count = numRuns + (numRuns * (index ~/ 4));
+      final result = runTest(count);
+      legacy += result.$1;
+      containment += result.$2;
+    }
+    final avgLegacy = legacy / numRuns;
+    final avgContainment = containment / numRuns;
     print(
-      'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected = $expectedHitCount legacy=${legacyStopwatch.elapsedMicroseconds} '
-      'us, point-containment=${containmentStopwatch.elapsedMicroseconds} us',
+      'Concave PolygonRayIntersection: #$numRuns runs == legacy: $legacyµs ⨏:${avgLegacy.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
     );
   });
 
   test('compares both modes over a convex polygon batch', () {
-    const hitboxCount = 256;
-    final vertices = pathVertices(roundRectPath(const Size(64, 48)));
-    final template = PolygonHitbox(
-      vertices.map((vertex) => vertex.clone()).toList(),
-    );
-    final random = Random(0);
-    final positions = [
-      for (var index = 0; index < hitboxCount; index++)
-        Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
-    ];
-    final hitboxes = [
-      for (var index = 0; index < hitboxCount; index++)
-        PolygonHitbox(
-          vertices.map((vertex) => vertex.clone()).toList(),
-          position: positions[index].clone(),
-        ),
-    ];
-    final rayCases = randomRayCases(
-      template,
-      hitboxCount,
-      Random(1),
-      safePoint: template.size / 2,
-    );
-    final rays = [
-      for (var index = 0; index < hitboxCount; index++)
-        Ray2(
-          origin: rayCases[index].ray.origin + positions[index],
-          direction: rayCases[index].ray.direction,
-        ),
-    ];
-    final expectedHitCount = rayCases
-        .where((rayCase) => rayCase.expectsHit)
-        .length;
+    BatchResult runTest(int hitboxCount) {
+      final vertices = pathVertices(roundRectPath(const Size(64, 48)));
+      final template = PolygonHitbox(
+        vertices.map((vertex) => vertex.clone()).toList(),
+      );
+      final random = Random(0);
+      final positions = [
+        for (var index = 0; index < hitboxCount; index++)
+          Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
+      ];
+      final hitboxes = [
+        for (var index = 0; index < hitboxCount; index++)
+          PolygonHitbox(
+            vertices.map((vertex) => vertex.clone()).toList(),
+            position: positions[index].clone(),
+          ),
+      ];
+      final rayCases = _randomRayCases(
+        template,
+        hitboxCount,
+        Random(1),
+        safePoint: template.size / 2,
+      );
+      final rays = [
+        for (var index = 0; index < hitboxCount; index++)
+          Ray2(
+            origin: rayCases[index].ray.origin + positions[index],
+            direction: rayCases[index].ray.direction,
+          ),
+      ];
+      final expectedHitCount = rayCases
+          .where((rayCase) => rayCase.expectsHit)
+          .length;
 
-    int run(bool useContainment) {
-      for (final hitbox in hitboxes) {
-        hitbox.useContainment = useContainment;
-      }
-
-      var hitCount = 0;
-      for (var index = 0; index < hitboxes.length; index++) {
-        if (hitboxes[index].rayIntersection(rays[index]) != null) {
-          hitCount++;
+      int run({required bool useContainment}) {
+        for (final hitbox in hitboxes) {
+          hitbox.useContainment = useContainment;
         }
+
+        var hitCount = 0;
+        for (var index = 0; index < hitboxes.length; index++) {
+          if (hitboxes[index].rayIntersection(rays[index]) != null) {
+            hitCount++;
+          }
+        }
+        return hitCount;
       }
-      return hitCount;
+
+      final legacyStopwatch = Stopwatch()..start();
+      final legacyHitCount = run(useContainment: false);
+      legacyStopwatch.stop();
+
+      final containmentStopwatch = Stopwatch()..start();
+      final containmentHitCount = run(useContainment: true);
+      containmentStopwatch.stop();
+
+      expect(legacyHitCount, expectedHitCount);
+      expect(containmentHitCount, expectedHitCount);
+      expect(
+        rays.map((ray) => ray.direction.toString()).toSet(),
+        hasLength(hitboxCount),
+      );
+      expect(
+        positions.map((position) => position.toString()).toSet(),
+        hasLength(hitboxCount),
+      );
+      final result = (
+        legacyStopwatch.elapsedMicroseconds,
+        containmentStopwatch.elapsedMicroseconds,
+      );
+      print(
+        'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> legacy: ${result.$1}µs, containment: ${result.$2}µs',
+      );
+      return result;
     }
 
-    final legacyStopwatch = Stopwatch()..start();
-    final legacyHitCount = run(false);
-    legacyStopwatch.stop();
-
-    final containmentStopwatch = Stopwatch()..start();
-    final containmentHitCount = run(true);
-    containmentStopwatch.stop();
-
-    expect(legacyHitCount, expectedHitCount);
-    expect(containmentHitCount, expectedHitCount);
-    expect(
-      rays.map((ray) => ray.direction.toString()).toSet(),
-      hasLength(hitboxCount),
-    );
-    expect(
-      positions.map((position) => position.toString()).toSet(),
-      hasLength(hitboxCount),
-    );
+    var legacy = 0;
+    var containment = 0;
+    const numRuns = 32;
+    for (var index = 0; index < numRuns; ++index) {
+      final count = numRuns + (numRuns * (index ~/ 4));
+      final result = runTest(count);
+      legacy += result.$1;
+      containment += result.$2;
+    }
+    final avgLegacy = legacy / numRuns;
+    final avgContainment = containment / numRuns;
     print(
-      'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected = $expectedHitCount '
-      'legacy=${legacyStopwatch.elapsedMicroseconds} us, '
-      'point-containment=${containmentStopwatch.elapsedMicroseconds} us',
+      'Convex PolygonRayIntersection: #$numRuns runs == legacy: $legacyµs ⨏:${avgLegacy.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
     );
   });
 }
