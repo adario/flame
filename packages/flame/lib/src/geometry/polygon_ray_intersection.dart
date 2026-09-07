@@ -20,33 +20,23 @@ mixin PolygonRayIntersection<T extends ShapeHitbox> on PolygonComponent {
     final vertices = globalVertices();
     var closestDistance = double.infinity;
     LineSegment? closestSegment;
-    var crossings = 0;
-    var isOverlappingPoint = false;
     // Float32List (used by Vector2) carries ~7 significant digits. After
     // reflecting, the stored origin can drift by up to |coord| * 2^-23.
     // Scale epsilon to the origin's magnitude so we skip self-intersections
     // without missing real hits.
     final epsilon =
-        max(
-          1.0,
-          max(ray.origin.x.abs(), ray.origin.y.abs()),
-        ) *
-        1e-4;
+        max(1.0, max(ray.origin.x.abs(), ray.origin.y.abs())) * 1e-4;
     for (var i = 0; i < vertices.length; i++) {
       final lineSegment = getEdge(i, vertices: vertices);
       final distance = ray.lineSegmentIntersection(lineSegment);
       if (distance != null && distance > epsilon) {
-        crossings++;
         if (distance < closestDistance) {
-          isOverlappingPoint = false;
           closestDistance = distance;
           closestSegment = lineSegment;
-        } else if (distance == closestDistance) {
-          isOverlappingPoint = true;
         }
       }
     }
-    if (crossings > 0) {
+    if (closestSegment != null) {
       final intersectionPoint = ray.point(
         closestDistance,
         out: out?.intersectionPoint,
@@ -54,15 +44,14 @@ mixin PolygonRayIntersection<T extends ShapeHitbox> on PolygonComponent {
       // This is "from" to "to" since it is defined ccw in the canvas
       // coordinate system
       _temporaryNormal
-        ..setFrom(closestSegment!.from)
+        ..setFrom(closestSegment.from)
         ..sub(closestSegment.to);
       _temporaryNormal
         ..setValues(_temporaryNormal.y, -_temporaryNormal.x)
         ..normalize();
-      var isInsideHitbox = false;
-      if (crossings == 1 || isOverlappingPoint) {
+      final isInsideHitbox = containsPointInVertices(ray.origin, vertices);
+      if (isInsideHitbox) {
         _temporaryNormal.invert();
-        isInsideHitbox = true;
       }
       final reflectionDirection =
           (out?.reflectionRay?.direction ?? Vector2.zero())
