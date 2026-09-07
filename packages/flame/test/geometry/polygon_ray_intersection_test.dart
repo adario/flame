@@ -206,15 +206,15 @@ void main() {
         return hitCount;
       }
 
-      final legacyStopwatch = Stopwatch()..start();
-      final legacyHitCount = run(useContainment: false);
-      legacyStopwatch.stop();
+      final crossingsStopwatch = Stopwatch()..start();
+      final crossingsHitCount = run(useContainment: false);
+      crossingsStopwatch.stop();
 
       final containmentStopwatch = Stopwatch()..start();
       final containmentHitCount = run(useContainment: true);
       containmentStopwatch.stop();
 
-      expect(legacyHitCount, expectedHitCount);
+      expect(crossingsHitCount, expectedHitCount);
       expect(containmentHitCount, expectedHitCount);
       expect(
         rays.map((ray) => ray.direction.toString()).toSet(),
@@ -225,28 +225,28 @@ void main() {
         hasLength(hitboxCount),
       );
       final result = (
-        legacyStopwatch.elapsedMicroseconds,
+        crossingsStopwatch.elapsedMicroseconds,
         containmentStopwatch.elapsedMicroseconds,
       );
       print(
-        'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> legacy: ${result.$1}µs, containment: ${result.$2}µs',
+        'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
       );
       return result;
     }
 
-    var legacy = 0;
+    var crossings = 0;
     var containment = 0;
-    const numRuns = 32;
+    const numRuns = 40;
     for (var index = 0; index < numRuns; ++index) {
       final count = numRuns + (numRuns * (index ~/ 4));
       final result = runTest(count);
-      legacy += result.$1;
+      crossings += result.$1;
       containment += result.$2;
     }
-    final avgLegacy = legacy / numRuns;
+    final avgCrossings = crossings / numRuns;
     final avgContainment = containment / numRuns;
     print(
-      'Concave PolygonRayIntersection: #$numRuns runs == legacy: $legacyµs ⨏:${avgLegacy.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
+      'Concave PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
     );
   });
 
@@ -299,15 +299,15 @@ void main() {
         return hitCount;
       }
 
-      final legacyStopwatch = Stopwatch()..start();
-      final legacyHitCount = run(useContainment: false);
-      legacyStopwatch.stop();
+      final crossingsStopwatch = Stopwatch()..start();
+      final crossingsHitCount = run(useContainment: false);
+      crossingsStopwatch.stop();
 
       final containmentStopwatch = Stopwatch()..start();
       final containmentHitCount = run(useContainment: true);
       containmentStopwatch.stop();
 
-      expect(legacyHitCount, expectedHitCount);
+      expect(crossingsHitCount, expectedHitCount);
       expect(containmentHitCount, expectedHitCount);
       expect(
         rays.map((ray) => ray.direction.toString()).toSet(),
@@ -318,28 +318,28 @@ void main() {
         hasLength(hitboxCount),
       );
       final result = (
-        legacyStopwatch.elapsedMicroseconds,
+        crossingsStopwatch.elapsedMicroseconds,
         containmentStopwatch.elapsedMicroseconds,
       );
       print(
-        'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> legacy: ${result.$1}µs, containment: ${result.$2}µs',
+        'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
       );
       return result;
     }
 
-    var legacy = 0;
+    var crossings = 0;
     var containment = 0;
-    const numRuns = 32;
+    const numRuns = 40;
     for (var index = 0; index < numRuns; ++index) {
       final count = numRuns + (numRuns * (index ~/ 4));
       final result = runTest(count);
-      legacy += result.$1;
+      crossings += result.$1;
       containment += result.$2;
     }
-    final avgLegacy = legacy / numRuns;
+    final avgCrossings = crossings / numRuns;
     final avgContainment = containment / numRuns;
     print(
-      'Convex PolygonRayIntersection: #$numRuns runs == legacy: $legacyµs ⨏:${avgLegacy.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
+      'Convex PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
     );
   });
 }
