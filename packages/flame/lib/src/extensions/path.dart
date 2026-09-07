@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flame/extensions.dart';
 import 'package:flame/game.dart' show Transform2D, Vector2;
 import 'package:flame/src/cache/matrix_pool.dart' show pathTransform;
-import 'package:flame/src/extensions/offset.dart' show FractEquals;
 
 export 'dart:ui' show Path;
 
