@@ -7,22 +7,18 @@ import 'package:flame/geometry.dart';
 /// Used to add the [rayIntersection] method to [RectangleHitbox] and
 /// [PolygonHitbox], used by the raytracing and raycasting methods.
 mixin PolygonRayIntersection<T extends ShapeHitbox> on PolygonComponent {
-  /// Whether ray intersections should use point containment to determine
-  /// whether the ray originated inside the polygon.
-  ///
-  /// When false, the legacy edge-crossing behavior is used. This defaults to
-  /// false for backwards compatibility.
-  bool useContainment = false;
-
   late final _temporaryNormal = Vector2.zero();
 
   /// Returns whether the [RaycastResult] if the [ray] intersects the polygon.
   ///
   /// If [out] is defined that is used to populate with the result and then
   /// returned, to minimize the creation of new objects.
+  /// When [useContainment] is false (the default for backwards compatibility),
+  /// the standard edge-crossing behavior is used.
   RaycastResult<ShapeHitbox>? rayIntersection(
     Ray2 ray, {
     RaycastResult<ShapeHitbox>? out,
+    bool useContainment = false,
   }) {
     final vertices = globalVertices();
     var closestDistance = double.infinity;

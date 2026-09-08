@@ -8,6 +8,11 @@ import 'package:flame/extensions.dart';
 import 'package:flame/geometry.dart';
 import 'package:test/test.dart';
 
+const _testWidth = 1024.0;
+const _testHeight = 768.0;
+
+int _verbose = 0;
+
 Path roundRectPath(Size size) {
   return Path()..addRRect(
     RRect.fromRectAndRadius(
@@ -88,8 +93,8 @@ List<_RayCase> _randomRayCases(
   for (var index = 0; index < count - halfCount; index++) {
     final target = randomInsidePoint();
     final origin = Vector2(
-      polygon.size.x + 10 + random.nextDouble() * 100,
-      random.nextDouble() * polygon.size.y,
+      polygon.size.x + random.nextDouble() * _testWidth,
+      polygon.size.y + random.nextDouble() * _testHeight,
     );
     final pointsTowardPolygon = index.isEven;
     cases.add(
@@ -125,9 +130,9 @@ void main() {
     expect(result, isNotNull);
     expect(result!.isInsideHitbox, isTrue);
 
-    hitbox.useContainment = true;
     final correctedResult = hitbox.rayIntersection(
       Ray2(origin: Vector2(-1, -1), direction: Vector2(1, 1).normalized()),
+      useContainment: true,
     );
 
     expect(correctedResult, isNotNull);
@@ -153,9 +158,9 @@ void main() {
     expect(result, isNotNull);
     expect(result!.isInsideHitbox, isFalse);
 
-    hitbox.useContainment = true;
     final correctedResult = hitbox.rayIntersection(
       Ray2(origin: Vector2(0.5, 2), direction: Vector2(1, 0)),
+      useContainment: true,
     );
 
     expect(correctedResult, isNotNull);
@@ -171,7 +176,10 @@ void main() {
       final random = Random(0);
       final positions = [
         for (var index = 0; index < hitboxCount; index++)
-          Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
+          Vector2(
+            random.nextDouble() * _testWidth,
+            random.nextDouble() * _testHeight,
+          ),
       ];
       final hitboxes = [
         for (var index = 0; index < hitboxCount; index++)
@@ -193,13 +201,13 @@ void main() {
           .length;
 
       int run({required bool useContainment}) {
-        for (final hitbox in hitboxes) {
-          hitbox.useContainment = useContainment;
-        }
-
         var hitCount = 0;
         for (var index = 0; index < hitboxes.length; index++) {
-          if (hitboxes[index].rayIntersection(rays[index]) != null) {
+          if (hitboxes[index].rayIntersection(
+                rays[index],
+                useContainment: useContainment,
+              ) !=
+              null) {
             hitCount++;
           }
         }
@@ -228,26 +236,30 @@ void main() {
         crossingsStopwatch.elapsedMicroseconds,
         containmentStopwatch.elapsedMicroseconds,
       );
-      print(
-        'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
-      );
+      if (_verbose > 1) {
+        print(
+          'Concave PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
+        );
+      }
       return result;
     }
 
     var crossings = 0;
     var containment = 0;
-    const numRuns = 40;
+    const numRuns = 500;
+    const count = 100;
     for (var index = 0; index < numRuns; ++index) {
-      final count = numRuns + (numRuns * (index ~/ 4));
       final result = runTest(count);
       crossings += result.$1;
       containment += result.$2;
     }
     final avgCrossings = crossings / numRuns;
     final avgContainment = containment / numRuns;
-    print(
-      'Concave PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
-    );
+    if (_verbose > 0) {
+      print(
+        'Concave PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
+      );
+    }
   });
 
   test('compares both modes over a convex polygon batch', () {
@@ -259,7 +271,10 @@ void main() {
       final random = Random(0);
       final positions = [
         for (var index = 0; index < hitboxCount; index++)
-          Vector2(random.nextDouble() * 1024, random.nextDouble() * 768),
+          Vector2(
+            random.nextDouble() * _testWidth,
+            random.nextDouble() * _testHeight,
+          ),
       ];
       final hitboxes = [
         for (var index = 0; index < hitboxCount; index++)
@@ -286,13 +301,13 @@ void main() {
           .length;
 
       int run({required bool useContainment}) {
-        for (final hitbox in hitboxes) {
-          hitbox.useContainment = useContainment;
-        }
-
         var hitCount = 0;
         for (var index = 0; index < hitboxes.length; index++) {
-          if (hitboxes[index].rayIntersection(rays[index]) != null) {
+          if (hitboxes[index].rayIntersection(
+                rays[index],
+                useContainment: useContainment,
+              ) !=
+              null) {
             hitCount++;
           }
         }
@@ -321,25 +336,29 @@ void main() {
         crossingsStopwatch.elapsedMicroseconds,
         containmentStopwatch.elapsedMicroseconds,
       );
-      print(
-        'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
-      );
+      if (_verbose > 1) {
+        print(
+          'Convex PolygonRayIntersection: #${hitboxes.length} hitboxes, #${rays.length} rays, expected hits = $expectedHitCount -> crossings: ${result.$1}µs, containment: ${result.$2}µs',
+        );
+      }
       return result;
     }
 
     var crossings = 0;
     var containment = 0;
-    const numRuns = 40;
+    const numRuns = 500;
+    const count = 100;
     for (var index = 0; index < numRuns; ++index) {
-      final count = numRuns + (numRuns * (index ~/ 4));
       final result = runTest(count);
       crossings += result.$1;
       containment += result.$2;
     }
     final avgCrossings = crossings / numRuns;
     final avgContainment = containment / numRuns;
-    print(
-      'Convex PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
-    );
+    if (_verbose > 0) {
+      print(
+        'Convex PolygonRayIntersection: #$numRuns runs == crossings: $crossingsµs ⨏:${avgCrossings.toStringAsFixed(1)}µs, containment: $containmentµs ⨏:${avgContainment.toStringAsFixed(1)}µs',
+      );
+    }
   });
 }
