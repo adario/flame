@@ -54,6 +54,7 @@ class CircleHitbox extends CircleComponent with ShapeHitbox {
   RaycastResult<ShapeHitbox>? rayIntersection(
     Ray2 ray, {
     RaycastResult<ShapeHitbox>? out,
+    bool useContainment = false,
   }) {
     final effectiveRadius = scaledRadius;
     _temporaryAbsoluteCenter.setFrom(absoluteCenter);

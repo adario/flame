@@ -13,8 +13,11 @@ mixin PolygonRayIntersection<T extends ShapeHitbox> on PolygonComponent {
   ///
   /// If [out] is defined that is used to populate with the result and then
   /// returned, to minimize the creation of new objects.
-  /// When [useContainment] is false (the default for backwards compatibility),
-  /// the standard edge-crossing behavior is used.
+  ///
+  /// When [useContainment] is `false` (default for backwards compatibility),
+  /// the standard edge-crossing behavior is used; otherwise, the behavior
+  /// is based on point containment, which is more expensive but should work
+  /// on concave polygons as well.
   RaycastResult<ShapeHitbox>? rayIntersection(
     Ray2 ray, {
     RaycastResult<ShapeHitbox>? out,
