@@ -126,11 +126,7 @@ class PolygonComponent extends ShapeComponent {
   static List<Vector2> pathContourToVertices(Path path, double granularity) {
     final contours = path.walkContours(null, granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
-    final vertices = contours.first.map((o) => o.toVector2()).toList();
-    if (vertices.length > 1 && vertices.first == vertices.last) {
-      vertices.removeLast();
-    }
-    return vertices;
+    return contours.getVertices();
   }
 
   /// With this constructor you create a regular (equiangular and equilateral)

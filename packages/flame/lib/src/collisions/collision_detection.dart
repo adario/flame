@@ -107,7 +107,7 @@ abstract class CollisionDetection<
   /// If [out] is provided that object will be modified and returned with the
   /// result.
   ///
-  /// When [useContainment] is `false` (the default for backwards compatibility),
+  /// When [useContainment] is `false` (default for backwards compatibility),
   /// the standard edge-crossing behavior is used; otherwise, the behavior
   /// is based on point containment, which is more expensive but should work
   /// on concave polygons as well.
@@ -147,7 +147,7 @@ abstract class CollisionDetection<
   /// returned with the result. If there are less objects in [out] than the
   /// result requires, the missing [RaycastResult] objects will be created.
   ///
-  /// When [useContainment] is `false` (the default for backwards compatibility),
+  /// When [useContainment] is `false` (default for backwards compatibility),
   /// the standard edge-crossing behavior is used; otherwise, the behavior
   /// is based on point containment, which is more expensive but should work
   /// on concave polygons as well.

@@ -103,17 +103,21 @@ extension Contour on PathMetric {
     Offset? lastVector;
     final points = <Offset>[];
 
-    void add(Tangent? tangent, {bool force = false}) {
+    void add(Tangent? tangent, {bool force = false, bool usePoint = false}) {
       if (tangent == null) {
         return;
       }
+      final position = tangent.position;
+      final vector = tangent.vector;
       var differs = false;
       if (lastVector != null) {
-        differs = !tangent.vector.fractEquals(lastVector!, digits: 1);
+        differs = !vector.fractEquals(lastVector!, digits: 1);
       }
-      lastVector = tangent.vector;
-      if (differs || force) {
-        points.add(tangent.position);
+      lastVector = vector;
+      if (differs ||
+          force ||
+          (usePoint && !position.fractEquals(points.last))) {
+        points.add(position);
       }
     }
 
@@ -123,7 +127,8 @@ extension Contour on PathMetric {
       add(tangent, force: distance == 0);
     }
     final tangent = getTangentForOffset(length);
-    add(tangent, force: true);
+    add(tangent, usePoint: points.length > 1);
+    points.removeDuplicateLast();
     return points;
   }
 }

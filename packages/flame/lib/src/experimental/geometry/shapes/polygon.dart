@@ -42,11 +42,7 @@ class Polygon extends Shape {
   ]) {
     final contours = path.walkContours(null, granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
-    final vertices = contours.first.map((o) => o.toVector2()).toList();
-    if (vertices.length > 1 && vertices.first == vertices.last) {
-      vertices.removeLast();
-    }
-    return Polygon(vertices);
+    return Polygon(contours.getVertices());
   }
 
   /// The vertices (corners) of the polygon.
