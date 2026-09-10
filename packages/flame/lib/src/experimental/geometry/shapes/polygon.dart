@@ -34,15 +34,18 @@ class Polygon extends Shape {
     }
   }
 
-  /// Constructs the polygon from the first contour of a [Path].
+  /// Constructs the polygon from the given [contour] of a [Path]
+  /// (the first by default), with an optional overall [pathLength].
   /// The [granularity] parameter controls the amplitude of the sampling step.
   factory Polygon.fromPath(
     Path path, [
+    double? pathLength,
     double granularity = 2.0,
+    int contour = 0,
   ]) {
-    final contours = path.walkContours(null, granularity);
+    final contours = path.walkContours(pathLength, granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
-    return Polygon(contours.getVertices());
+    return Polygon(contours.getVertices(contour));
   }
 
   /// The vertices (corners) of the polygon.

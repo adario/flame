@@ -93,10 +93,13 @@ class PolygonComponent extends ShapeComponent {
          children: children,
        );
 
-  /// With this constructor you create a [PolygonComponent] from the first
-  /// contour of a [Path].
+  /// With this constructor you create a [PolygonComponent] from the given
+  /// [contour] (the first by default) of a [Path], with an optional
+  ///
   PolygonComponent.contour(
     Path path, {
+    int contour = 0,
+    double? pathLength,
     double granularity = 2.0,
     Vector2? position,
     Vector2? scale,
@@ -108,7 +111,7 @@ class PolygonComponent extends ShapeComponent {
     ComponentKey? key,
     List<Component>? children,
   }) : this(
-         pathContourToVertices(path, granularity),
+         pathContourToVertices(path, granularity, contour, pathLength),
          position: position,
          size: path.getBounds().size.toVector2(),
          angle: angle,
@@ -123,10 +126,15 @@ class PolygonComponent extends ShapeComponent {
        );
 
   @internal
-  static List<Vector2> pathContourToVertices(Path path, double granularity) {
-    final contours = path.walkContours(null, granularity);
+  static List<Vector2> pathContourToVertices(
+    Path path,
+    double granularity,
+    int contour,
+    double? pathLength,
+  ) {
+    final contours = path.walkContours(pathLength, granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
-    return contours.getVertices();
+    return contours.getVertices(contour);
   }
 
   /// With this constructor you create a regular (equiangular and equilateral)
