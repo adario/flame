@@ -99,8 +99,7 @@ class PolygonComponent extends ShapeComponent {
   PolygonComponent.contour(
     Path path, {
     int contour = 0,
-    double? pathLength,
-    double granularity = 2.0,
+    double granularity = 1.0,
     Vector2? position,
     Vector2? scale,
     double? angle,
@@ -111,7 +110,7 @@ class PolygonComponent extends ShapeComponent {
     ComponentKey? key,
     List<Component>? children,
   }) : this(
-         pathContourToVertices(path, granularity, contour, pathLength),
+         pathContourToVertices(path, granularity, contour),
          position: position,
          size: path.getBounds().size.toVector2(),
          angle: angle,
@@ -130,9 +129,8 @@ class PolygonComponent extends ShapeComponent {
     Path path,
     double granularity,
     int contour,
-    double? pathLength,
   ) {
-    final contours = path.walkContours(pathLength, granularity);
+    final contours = path.walkContours(granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
     return contours.getVertices(contour);
   }

@@ -215,7 +215,7 @@ List<Vector2> _pathVertices(Path path) {
   if (existing != null) {
     return existing;
   }
-  final contours = path.centered.walkContours(null, 2);
+  final contours = path.centered.walkContours(2);
   assert(contours.isNotEmpty, 'Empty path contours');
   final vertices = contours.getVertices();
   _vertices[path] = vertices;

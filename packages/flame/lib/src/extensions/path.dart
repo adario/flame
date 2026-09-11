@@ -1,3 +1,4 @@
+import 'dart:math' show sqrt;
 import 'dart:typed_data' show Float32List;
 import 'dart:ui';
 
@@ -61,75 +62,129 @@ extension PathContours on Path {
 
   /// Walk the contours of a [Path] and return them as a list of [Offset] lists.
   /// Each entry in the list corresponds to a given sub-contour.
-  /// The optional [pathLength] represents a pre-computed path length
-  /// for paths that contain a single contour.
   /// The [granularity] parameter controls the amplitude of the sampling step.
-  List<OffsetList> walkContours([
-    double? pathLength,
-    double granularity = 1.0,
-  ]) {
+  List<OffsetList> walkContours([double granularity = 1.0]) {
     final contours = this.contours;
-    final totalLength = contours.contoursLength;
     final allPoints = <OffsetList>[];
     for (final metric in contours) {
-      allPoints.add(metric.walkContour(totalLength, pathLength, granularity));
+      allPoints.add(metric.walkContour(granularity));
     }
     return allPoints;
   }
 }
 
 extension Contour on PathMetric {
-  static const _threshold = 0.1;
+  static const _simplificationTolerance = 0.5; // pixels
 
   /// Walk a single contour of a [Path] and return it as an [Offset] list.
-  /// The optional [pathLength] represents a pre-computed path length,
-  /// used when this contour length matches the [totalLength] of the path.
+  ///
+  /// The polyline is sampled at regular intervals along the path, then
+  /// simplified using the Ramer-Douglas-Peucker algorithm with a 0.5px
+  /// tolerance. This reduces vertex count while maintaining acceptable
+  /// accuracy for hitbox geometry.
+  ///
   /// The [granularity] parameter controls the amplitude of the sampling step.
-  /// (This is obviously not clear enough...)
-  OffsetList walkContour(
-    double totalLength, [
-    double? pathLength,
-    double granularity = 1.0,
-  ]) {
-    final amount = length / totalLength;
-    final pathAmount = length / (pathLength ?? totalLength);
-    var step = amount != 1 ? amount : pathAmount;
-    if (step < _threshold) {
-      step *= 1.0 / _threshold;
-    }
+  OffsetList walkContour([double granularity = 1.0]) {
+    // Calculate step size: base step is 1.0, scaled by granularity
+    var step = 1.0;
     if (granularity > 0) {
       step *= granularity;
     }
-    Offset? lastVector;
+
+    // Sample the path at regular intervals
     final points = <Offset>[];
-
-    void add(Tangent? tangent, {bool force = false, bool usePoint = false}) {
-      if (tangent == null) {
-        return;
-      }
-      final position = tangent.position;
-      final vector = tangent.vector;
-      var differs = false;
-      if (lastVector != null) {
-        differs = !vector.fractEquals(lastVector!, digits: 1);
-      }
-      lastVector = vector;
-      if (differs ||
-          force ||
-          (usePoint && !position.fractEquals(points.last))) {
-        points.add(position);
-      }
-    }
-
     for (double distance = 0; distance < length; distance += step) {
       final tangent = getTangentForOffset(distance);
-      assert(tangent != null, 'Tangent is null at distance $distance');
-      add(tangent, force: distance == 0);
+      if (tangent != null) {
+        points.add(tangent.position);
+      }
     }
-    final tangent = getTangentForOffset(length);
-    add(tangent, usePoint: points.length > 1);
+
+    // Add the endpoint
+    final endTangent = getTangentForOffset(length);
+    if (endTangent != null) {
+      points.add(endTangent.position);
+    }
+
+    // Remove duplicate last point if any
     points.removeDuplicateLast();
-    return points;
+
+    // Simplify using Ramer-Douglas-Peucker algorithm
+    return _simplifyPolyline(points, _simplificationTolerance);
+  }
+
+  /// Simplify a polyline using the Ramer-Douglas-Peucker algorithm.
+  ///
+  /// Recursively removes points that are within [tolerance] distance
+  /// from the line segment connecting their neighbors.
+  /// This preserves the overall shape while reducing vertex count.
+  static OffsetList _simplifyPolyline(
+    OffsetList points,
+    double tolerance,
+  ) {
+    if (points.length <= 2) return points;
+
+    // Find the point with maximum perpendicular distance from the line
+    // formed by the first and last points
+    int maxDistIndex = 0;
+    double maxDist = 0.0;
+
+    final start = points.first;
+    final end = points.last;
+
+    for (int i = 1; i < points.length - 1; i++) {
+      final dist = _perpendicularDistance(points[i], start, end);
+      if (dist > maxDist) {
+        maxDist = dist;
+        maxDistIndex = i;
+      }
+    }
+
+    // If max distance exceeds tolerance, recursively simplify both segments
+    if (maxDist > tolerance) {
+      final left = _simplifyPolyline(
+        points.sublist(0, maxDistIndex + 1),
+        tolerance,
+      );
+      final right = _simplifyPolyline(
+        points.sublist(maxDistIndex),
+        tolerance,
+      );
+      // Combine, removing duplicate point at the split
+      return [...left.sublist(0, left.length - 1), ...right];
+    }
+
+    // Remove all intermediate points; keep only endpoints
+    return [start, end];
+  }
+
+  /// Calculate the perpendicular distance from a point to a line segment.
+  ///
+  /// Uses the standard formula: |ax + by + c| / sqrt(a² + b²)
+  /// where the line is defined by two points.
+  static double _perpendicularDistance(
+    Offset point,
+    Offset lineStart,
+    Offset lineEnd,
+  ) {
+    final dx = lineEnd.dx - lineStart.dx;
+    final dy = lineEnd.dy - lineStart.dy;
+
+    // If the line segment has zero length, return distance to that point
+    if (dx == 0 && dy == 0) {
+      return (point - lineStart).distance;
+    }
+
+    // Perpendicular distance formula
+    final numerator =
+        (dy * point.dx -
+                dx * point.dy +
+                lineEnd.dx * lineStart.dy -
+                lineEnd.dy * lineStart.dx)
+            .abs();
+    final denominator = sqrt(dx * dx + dy * dy);
+
+    return numerator / denominator;
   }
 }
 

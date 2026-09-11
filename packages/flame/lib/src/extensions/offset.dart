@@ -19,16 +19,12 @@ extension OffsetExtension on Offset {
   Rect toRect() => Rect.fromLTWH(0, 0, dx, dy);
 }
 
-extension FractEquals on Offset {
-  /// Returns true if the two offsets are equal up to a certain number
-  /// of decimal places; use zero for integral comparison.
-  bool fractEquals(Offset other, {int digits = 3}) {
-    assert(digits >= 0, 'The number of digits must be non-negative.');
-    if (digits == 0) {
-      return dx.toInt() == other.dx.toInt() && dy.toInt() == other.dy.toInt();
-    }
-    return dx.toStringAsFixed(digits) == other.dx.toStringAsFixed(digits) &&
-        dy.toStringAsFixed(digits) == other.dy.toStringAsFixed(digits);
+extension FuzzyEqual on Offset {
+  /// Returns true if the two offsets are equal up to given [epsilon].
+  bool fuzzyEqual(Offset other, {double epsilon = 1e-3}) {
+    final fDx = (dx - other.dx).abs();
+    final fDy = (dy - other.dy).abs();
+    return fDx <= epsilon && fDy <= epsilon;
   }
 }
 
@@ -36,10 +32,10 @@ extension OffsetListExtension on List<Offset> {
   /// Removes the last element if it matches the first one.
   /// If the [strict] parameter is `false`, equality checking is carried out
   /// via the above extension.
-  bool removeDuplicateLast({bool strict = true, int digits = 3}) {
+  bool removeDuplicateLast({bool strict = true, double epsilon = 1e-3}) {
     if (length > 1 &&
         ((strict && first == last) ||
-            (!strict && first.fractEquals(last, digits: digits)))) {
+            (!strict && first.fuzzyEqual(last, epsilon: epsilon)))) {
       removeLast();
       return true;
     }

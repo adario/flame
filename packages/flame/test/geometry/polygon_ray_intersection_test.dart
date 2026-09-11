@@ -39,7 +39,7 @@ Path flamePath() {
 }
 
 List<Vector2> pathVertices(Path path) {
-  final contours = path.centered.walkContours(null, 2);
+  final contours = path.centered.walkContours(2);
   assert(contours.isNotEmpty, 'Empty path contours');
   final vertices = contours.first.map((offset) => offset.toVector2()).toList();
   if (vertices.length > 1 && vertices.first == vertices.last) {

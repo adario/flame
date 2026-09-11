@@ -63,7 +63,6 @@ class PolygonHitbox extends PolygonComponent
     super.angle,
     super.anchor,
     super.contour,
-    super.pathLength,
     super.granularity,
     bool isSolid = false,
     CollisionType collisionType = CollisionType.active,

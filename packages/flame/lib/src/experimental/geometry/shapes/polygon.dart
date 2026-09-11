@@ -39,11 +39,10 @@ class Polygon extends Shape {
   /// The [granularity] parameter controls the amplitude of the sampling step.
   factory Polygon.fromPath(
     Path path, [
-    double? pathLength,
-    double granularity = 2.0,
+    double granularity = 1.0,
     int contour = 0,
   ]) {
-    final contours = path.walkContours(pathLength, granularity);
+    final contours = path.walkContours(granularity);
     assert(contours.isNotEmpty, 'Empty path contours');
     return Polygon(contours.getVertices(contour));
   }
