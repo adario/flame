@@ -122,17 +122,19 @@ extension Contour on PathMetric {
     OffsetList points,
     double tolerance,
   ) {
-    if (points.length <= 2) return points;
+    if (points.length <= 2) {
+      return points;
+    }
 
     // Find the point with maximum perpendicular distance from the line
     // formed by the first and last points
-    int maxDistIndex = 0;
-    double maxDist = 0.0;
+    var maxDistIndex = 0;
+    var maxDist = 0.0;
 
     final start = points.first;
     final end = points.last;
 
-    for (int i = 1; i < points.length - 1; i++) {
+    for (var i = 1; i < points.length - 1; i++) {
       final dist = _perpendicularDistance(points[i], start, end);
       if (dist > maxDist) {
         maxDist = dist;
