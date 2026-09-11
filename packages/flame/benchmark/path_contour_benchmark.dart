@@ -48,11 +48,11 @@ void _reportSampling() {
       (sum, metric) => sum + metric.length,
     );
     for (final granularity in [1.0, 2.0]) {
-      path.walkContours(null, granularity);
+      path.walkContours(granularity);
       final microseconds = _medianMicroseconds(
-        () => path.walkContours(null, granularity),
+        () => path.walkContours(granularity),
       );
-      final contours = path.walkContours(null, granularity);
+      final contours = path.walkContours(granularity);
       final polygon = contours.first;
       final tangentCalls = (length / granularity).ceil() + 1;
       final suffix = contours.length > 1
@@ -78,7 +78,7 @@ void _reportScaleSensitivity() {
   for (var index = 0; index < pathContourShapeNames.length; index++) {
     for (final side in [20.0, 100.0, 500.0, 2000.0]) {
       final path = pathContourShape(index, Size(side, side));
-      final polygon = path.walkContours(null, 2).first;
+      final polygon = path.walkContours(2).first;
       print(
         '${pathContourShapeNames[index].padRight(11)} '
         '${side.toStringAsFixed(0).padLeft(4)}  '
