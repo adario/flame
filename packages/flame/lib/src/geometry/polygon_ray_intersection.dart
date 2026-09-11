@@ -67,7 +67,7 @@ mixin PolygonRayIntersection<T extends ShapeHitbox> on PolygonComponent {
         ..normalize();
       final isInsideHitbox = useContainment
           ? containsPointInVertices(ray.origin, vertices)
-          : crossings == 1 || isOverlappingPoint;
+          : crossings.isOdd || isOverlappingPoint;
       if (isInsideHitbox) {
         _temporaryNormal.invert();
       }
