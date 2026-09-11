@@ -42,8 +42,28 @@ extension OffsetListExtension on List<Offset> {
     return false;
   }
 
+  /// Returns itself as a fixed list of [Vector2] objects.
   List<Vector2> get vertices =>
       map((o) => o.toVector2()).toList(growable: false);
+
+  /// Returns the approximate enclosing rectangle.
+  Rect get rectangle {
+    const epsilon = 1e-6;
+    var r = Rect.fromCenter(center: .zero, width: 0, height: 0);
+    forEach((offset) {
+      final p = Rect.fromCenter(
+        center: offset,
+        width: epsilon,
+        height: epsilon,
+      );
+      if (r.isEmpty) {
+        r = p;
+      } else {
+        r = r.expandToInclude(p);
+      }
+    });
+    return r;
+  }
 }
 
 extension VerticesList on List<List<Offset>> {
