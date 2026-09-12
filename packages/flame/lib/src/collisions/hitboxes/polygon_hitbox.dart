@@ -55,6 +55,22 @@ class PolygonHitbox extends PolygonComponent
     this.collisionType = collisionType;
   }
 
+  /// With this constructor you create a [PolygonHitbox] from the first
+  /// contour of a [Path].
+  PolygonHitbox.contour(
+    super.path, {
+    super.position,
+    super.angle,
+    super.anchor,
+    super.contour,
+    super.granularity,
+    bool isSolid = false,
+    CollisionType collisionType = CollisionType.active,
+  }) : super.contour() {
+    this.isSolid = isSolid;
+    this.collisionType = collisionType;
+  }
+
   @override
   @protected
   void computeAabb(Aabb2 aabb) {

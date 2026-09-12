@@ -1,8 +1,7 @@
 import 'dart:math';
-import 'dart:ui';
 
 import 'package:collection/collection.dart';
-import 'package:flame/components.dart';
+import 'package:flame/extensions.dart';
 import 'package:flame/math.dart';
 import 'package:flame/src/experimental/geometry/shapes/shape.dart';
 import 'package:flame/src/game/transform2d.dart';
@@ -33,6 +32,19 @@ class Polygon extends Shape {
     } else {
       _convex = convex;
     }
+  }
+
+  /// Constructs the polygon from the given [contour] of a [Path]
+  /// (the first by default), with an optional overall [pathLength].
+  /// The [granularity] parameter controls the amplitude of the sampling step.
+  factory Polygon.fromPath(
+    Path path, [
+    double granularity = 1.0,
+    int contour = 0,
+  ]) {
+    final contours = path.walkContours(granularity);
+    assert(contours.isNotEmpty, 'Empty path contours');
+    return Polygon(contours.getVertices(contour));
   }
 
   /// The vertices (corners) of the polygon.

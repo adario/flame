@@ -93,6 +93,48 @@ class PolygonComponent extends ShapeComponent {
          children: children,
        );
 
+  /// With this constructor you create a [PolygonComponent] from the given
+  /// [contour] (the first by default) of a [Path], with an optional
+  ///
+  PolygonComponent.contour(
+    Path path, {
+    int contour = 0,
+    double granularity = 1.0,
+    Vector2? position,
+    Vector2? scale,
+    double? angle,
+    Anchor? anchor,
+    int? priority,
+    Paint? paint,
+    List<Paint>? paintLayers,
+    ComponentKey? key,
+    List<Component>? children,
+  }) : this(
+         pathContourToVertices(path, granularity, contour),
+         position: position,
+         size: path.getBounds().size.toVector2(),
+         angle: angle,
+         anchor: anchor,
+         scale: scale,
+         priority: priority,
+         paint: paint,
+         paintLayers: paintLayers,
+         shrinkToBounds: false,
+         key: key,
+         children: children,
+       );
+
+  @internal
+  static List<Vector2> pathContourToVertices(
+    Path path,
+    double granularity,
+    int contour,
+  ) {
+    final contours = path.walkContours(granularity);
+    assert(contours.isNotEmpty, 'Empty path contours');
+    return contours.getVertices(contour);
+  }
+
   /// With this constructor you create a regular (equiangular and equilateral)
   /// polygon from number of sides and radius anywhere in the 2d-space. It will
   /// automatically calculate the [size] of the Polygon (the bounding box) if no
@@ -130,10 +172,7 @@ class PolygonComponent extends ShapeComponent {
        );
 
   @internal
-  static List<Vector2> normalsToVertices(
-    List<Vector2> normals,
-    Vector2 size,
-  ) {
+  static List<Vector2> normalsToVertices(List<Vector2> normals, Vector2 size) {
     final halfSize = size / 2;
     return normals
         .map(
@@ -205,10 +244,12 @@ class PolygonComponent extends ShapeComponent {
         // become counterclockwise.
         _reverseList(_globalVertices);
       }
-      _cachedGlobalVertices.updateCache<dynamic>(
-        _globalVertices,
-        <dynamic>[position.clone(), size.clone(), scale.clone(), angle],
-      );
+      _cachedGlobalVertices.updateCache<dynamic>(_globalVertices, <dynamic>[
+        position.clone(),
+        size.clone(),
+        scale.clone(),
+        angle,
+      ]);
     }
     return _cachedGlobalVertices.value!;
   }
@@ -232,7 +273,8 @@ class PolygonComponent extends ShapeComponent {
     canvas.drawPath(_path, debugPaint);
   }
 
-  bool _containsPoint(Vector2 point, List<Vector2> vertices) {
+  @internal
+  bool containsPointInVertices(Vector2 point, List<Vector2> vertices) {
     // If the size is 0 then it can't contain any points
     if (size.x == 0 || size.y == 0) {
       return false;
@@ -281,12 +323,12 @@ class PolygonComponent extends ShapeComponent {
   @override
   bool containsPoint(Vector2 point) {
     final vertices = globalVertices();
-    return _containsPoint(point, vertices);
+    return containsPointInVertices(point, vertices);
   }
 
   @override
   bool containsLocalPoint(Vector2 point) {
-    return _containsPoint(point, _vertices);
+    return containsPointInVertices(point, _vertices);
   }
 
   /// Return all vertices as [LineSegment]s that intersect [rect], if [rect]
