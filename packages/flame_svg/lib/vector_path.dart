@@ -58,7 +58,7 @@ class VectorPath {
       _fillPath = _addClosed();
 
       // If we have both open and closed contours with corresponding
-      // single countours, merge them accordingly.
+      // single contours, merge them accordingly.
       if (_strokePath != null) {
         if (_open.length == 1) {
           _fillPath!.addPath(_strokePath!, VectorPath._zero);
