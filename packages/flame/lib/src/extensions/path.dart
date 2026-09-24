@@ -142,12 +142,12 @@ extension PathMetricExtension on PathMetric {
     if (length <= 0) {
       return [];
     }
-    final validGranularity = sampling.isFinite && sampling > 0 ? sampling : 1.0;
+    final validSampling = sampling.isFinite && sampling > 0 ? sampling : 1.0;
     // A closed contour is sampled in at least three steps, so that it can be a
     // polygon no matter how coarse the sampling is.
     final step = isClosed
-        ? min(max(validGranularity, length / _maxSteps), length / 3)
-        : max(validGranularity, length / _maxSteps);
+        ? min(max(validSampling, length / _maxSteps), length / 3)
+        : max(validSampling, length / _maxSteps);
     final maxDeviation = tolerance ?? step / 2;
     final sampler = _ContourSampler(this, step, maxDeviation / 6)..sample();
     final points = _simplify(
@@ -269,7 +269,7 @@ extension PathMetricExtension on PathMetric {
     final start = points[from % count];
     final end = points[to % count];
     for (var i = from + 1; i < to; i++) {
-      final distance = _distanceToSegmentSquared(points[i % count], start, end);
+      final distance = points[i % count].distanceToSegmentSquared(start, end);
       if (distance > toleranceSquared) {
         return false;
       }
@@ -288,29 +288,6 @@ extension PathMetricExtension on PathMetric {
       }
     }
     return farthest;
-  }
-
-  static double _distanceToSegmentSquared(
-    Offset point,
-    Offset from,
-    Offset to,
-  ) {
-    final dx = to.dx - from.dx;
-    final dy = to.dy - from.dy;
-    final px = point.dx - from.dx;
-    final py = point.dy - from.dy;
-    final lengthSquared = dx * dx + dy * dy;
-    final along = px * dx + py * dy;
-    if (along <= 0) {
-      return px * px + py * py;
-    }
-    if (along >= lengthSquared) {
-      final ex = px - dx;
-      final ey = py - dy;
-      return ex * ex + ey * ey;
-    }
-    final across = px * dy - py * dx;
-    return across * across / lengthSquared;
   }
 }
 
