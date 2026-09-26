@@ -104,13 +104,16 @@ class PolygonComponent extends ShapeComponent {
   /// and the samples that are not needed to stay within about half of the
   /// [sampling] of the contour are left out. Higher values give fewer vertices
   /// and a looser fit, while straight stretches and the corners between them
-  /// are exact whatever the [sampling] is.
+  /// are exact whatever the [sampling] is.  The given [tolerance] decides
+  /// what samples to discard: by default, its value is half the [sampling].
   ///
-  /// See [PathMetricExtension.walkContour] for the details of the sampling.
+  /// See [PathMetricExtension.walkContour] for the details of the [sampling]
+  /// and [tolerance] parameters.
   PolygonComponent.fromPath(
     Path path, {
     int contour = 0,
     double sampling = 1.0,
+    double? tolerance,
     Vector2? position,
     Vector2? scale,
     double? angle,
@@ -123,7 +126,7 @@ class PolygonComponent extends ShapeComponent {
     ComponentKey? key,
     List<Component>? children,
   }) : this(
-         path.walkContourAt(contour, sampling).vertices,
+         path.walkContourAt(contour, sampling, tolerance).vertices,
          position: position,
          angle: angle,
          anchor: anchor,
