@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:examples/commons/collidable_path_component.dart';
 import 'package:examples/commons/paths.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
@@ -51,12 +52,12 @@ bounce on will appear.
           children: [CircleHitbox()],
         )
       else
-        PathComponent(
+        CollidablePathComponent(
           path: randomPath(halfCanvas * 2),
           position: halfCanvas.toVector2(),
           anchor: .center,
           paint: boxPaint,
-          filterHitboxes: false,
+          filter: false,
         ),
     ]);
   }
@@ -95,12 +96,12 @@ bounce on will appear.
               anchor: Anchor.center,
               children: [CircleHitbox()],
             ),
-            PathComponent(
+            CollidablePathComponent(
               path: path,
               position: Vector2.all(350),
               anchor: Anchor.center,
               paint: boxPaint,
-              filterHitboxes: false,
+              filter: false,
             ),
             RectangleComponent(
               position: Vector2.all(500),

@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:examples/commons/collidable_path_component.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/palette.dart';
@@ -83,6 +84,7 @@ PathComponent pathComponent(
   List<Paint>? paintLayers,
   Paint? contourPaint,
   bool? renderHitboxes,
+  bool? filter,
   Anchor? anchor,
 }) {
   // Create a standard test path that fits within our chosen size with its
@@ -96,6 +98,7 @@ PathComponent pathComponent(
     paintLayers: paintLayers,
     contourPaint: contourPaint,
     renderHitboxes: renderHitboxes,
+    filter: filter,
     anchor: anchor,
   );
 }
@@ -109,22 +112,24 @@ PathComponent pathComponentWith(
   List<Paint>? paintLayers,
   Paint? contourPaint,
   bool? renderHitboxes,
+  bool? filter,
   Anchor? anchor,
 }) {
   // Adjust the path such that fits within our chosen size with its
   // original aspect ratio.
   final path = resize ? srcPath.resizeTo(size, keepRatio: true) : srcPath;
 
-  // Create a component that displays the whole path: we filter all hitboxes
-  // that are (approximately) fully enclosed in the largest one.
-  return PathComponent(
+  // Create a component that displays the whole path: by default, the polygons
+  // that are fully enclosed in the largest one are left out of the hitbox.
+  return CollidablePathComponent(
     path: path,
     priority: shapePriority,
     position: position ?? Vector2.zero(),
     anchor: anchor ?? Anchor.center,
     paint: paint ?? pathStroke,
     paintLayers: paintLayers,
-    hitboxesPaint: contourPaint,
+    contourPaint: contourPaint,
     renderHitboxes: renderHitboxes ?? false,
-  )..renderShape = true;
+    filter: filter ?? true,
+  );
 }
