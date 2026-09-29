@@ -175,9 +175,15 @@ class SvgPaths {
       final index = entry.key;
       final paths = entry.value;
       final paint = paints[index]!;
-      final merged = ui.Path();
-      for (final path in paths) {
-        merged.addPath(path.path, .zero);
+      ui.Path merged;
+      if (paths.length > 1) {
+        merged = ui.Path();
+        for (final path in paths) {
+          merged.addPath(path.path, .zero);
+        }
+      } else {
+        assert(paths.isNotEmpty, 'Empty paths at $index');
+        merged = paths.first.path;
       }
       _paths.add(
         VectorPath(
