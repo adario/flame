@@ -58,6 +58,9 @@ class SvgPaths {
   /// The original width reported by the [VectorInstructions].
   double get height => _instructions.height;
 
+  /// The original size reported by the [VectorInstructions].
+  Size get size => Size(width, height);
+
   /// The original bounds for all paths.
   ui.Rect get bounds => _bounds ??= _computeBounds();
 
