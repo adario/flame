@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_equals_and_hash_code_on_mutable_classes
 import 'dart:ui' as ui;
 
 import 'package:flame/extensions.dart';
