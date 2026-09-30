@@ -19,7 +19,7 @@ class VectorPath {
   }
 
   void _prepare() {
-    if (paint.isFull || paint.isFilled) {
+    if (paint.isFilled) {
       _analyze();
     } else if (paint.isStroked) {
       _strokePath = path;

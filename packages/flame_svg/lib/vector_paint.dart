@@ -49,9 +49,6 @@ class VectorPaint {
   /// Whether the [stroke] component is present.
   bool get isStroked => stroke != null;
 
-  /// Whether both [fill] and [stroke] are present.
-  bool get isFull => isStroked && isFilled;
-
   @override
   String toString() {
     var result = 'VectorPaint(';
