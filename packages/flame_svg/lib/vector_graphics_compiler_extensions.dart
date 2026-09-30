@@ -147,16 +147,16 @@ extension PaintConverter on Paint {
 
 /// Path conversion from the vector graphics compiler.
 extension PathConverter on Path {
-  /// Converts a [Path] to a [VectorPath], using the provided [paints] and
+  /// Converts a [Path] to a [VectorPath], using the provided [paint] and
   /// optionally specifying a [pathId] and [description] for debugging purposes.
   VectorPath toVectorPath(
-    VectorPaint paints, {
+    VectorPaint paint, {
     int? pathId,
     StringBuffer? description,
   }) {
     return VectorPath(
       toUiPath(description),
-      paints,
+      paint,
       pathId: pathId,
       description: description,
     );

@@ -138,7 +138,7 @@ class VectorPath {
   @override
   String toString() {
     var desc =
-        'paints: $paint, open: ${_open.length}, closed: ${_closed.length}';
+        'paint: $paint, open: ${_open.length}, closed: ${_closed.length}';
     desc = 'VectorPath($desc)';
     if (description != null) {
       desc += '\n${description!}';

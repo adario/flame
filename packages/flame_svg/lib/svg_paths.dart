@@ -47,7 +47,7 @@ class SvgPaths {
   }
 
   /// The [VectorPaint] at the given index, if any.
-  VectorPaint? paintsAt(int index) {
+  VectorPaint? paintAt(int index) {
     final validIndex = index >= 0 && index < _paints.length;
     assert(validIndex, 'Invalid paints index $index');
     return validIndex ? _paints[index] : null;
