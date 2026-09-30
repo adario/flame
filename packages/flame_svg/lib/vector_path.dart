@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart';
 
 /// A path originating from the vector graphics compiler, and represented by
 /// a standard [ui.Path] and a [VectorPaint] object.
+@immutable
 class VectorPath {
   /// Create from the given [path] and [paint].
   VectorPath(
@@ -31,7 +32,6 @@ class VectorPath {
     }
   }
 
-  static const ui.Offset _zero = .zero;
   void _analyze() {
     // Analyze the path to determine which open/closed contours it contains.
     final contours = path.contours;
@@ -48,32 +48,36 @@ class VectorPath {
       }
     }
 
+    ui.Path? stroke;
+    ui.Path? fill;
     if (_open.isNotEmpty) {
       // Create a path for the open contours.
-      _strokePath = _addOpen();
+      stroke = _addOpen();
     }
 
     if (_closed.isNotEmpty) {
       // Create a path for the closed contours.
-      _fillPath = _addClosed();
+      fill = _addClosed();
 
       // If we have both open and closed contours with corresponding
       // single contours, merge them accordingly.
-      if (_strokePath != null) {
+      if (stroke != null) {
         if (_open.length == 1) {
-          _fillPath!.addPath(_strokePath!, VectorPath._zero);
+          fill.addPath(stroke, .zero);
         } else if (_closed.length == 1) {
-          _strokePath!.addPath(_fillPath!, VectorPath._zero);
+          stroke.addPath(fill, .zero);
         }
       }
     } else {
       // No closed contours, but we have open contours. If the paints
       // are not stroked, we keep only the fill path.
       if (!paint.isStroked && _open.isNotEmpty) {
-        _fillPath = _strokePath;
-        _strokePath = null;
+        fill = stroke;
+        stroke = null;
       }
     }
+    _fillPath = fill;
+    _strokePath = stroke;
     assert(
       _fillPath != null || _strokePath != null,
       'VectorPath must have at least a stroke or a fill.',
@@ -102,17 +106,16 @@ class VectorPath {
   /// with an optional [overridePaint].
   void render(ui.Canvas canvas, VectorPaint? overridePaint) {
     final paint = overridePaint ?? this.paint;
-    final fill = _fillPath;
-    if (fill != null && paint.fill != null) {
-      canvas.drawPath(fill, paint.fill!);
+    if (_fillPath != null && paint.fill != null) {
+      canvas.drawPath(_fillPath, paint.fill!);
     }
     if (_strokePath != null && paint.stroke != null) {
-      canvas.drawPath(_strokePath!, paint.stroke!);
+      canvas.drawPath(_strokePath, paint.stroke!);
     }
   }
 
   /// The default paint.
-  VectorPaint paint;
+  final VectorPaint paint;
 
   /// The original path.
   final ui.Path path;
@@ -126,14 +129,14 @@ class VectorPath {
   /// The original path ID.
   final int? pathId;
 
-  ui.Path? _strokePath;
-  ui.Path? _fillPath;
+  late final ui.Path? _strokePath;
+  late final ui.Path? _fillPath;
 
-  final List<ui.Path> _open = [];
-  final List<ui.Path> _closed = [];
+  final _open = <ui.Path>[];
+  final _closed = <ui.Path>[];
 
   /// Optional description for debugging purposes.
-  StringBuffer? description;
+  final StringBuffer? description;
 
   @override
   String toString() {
