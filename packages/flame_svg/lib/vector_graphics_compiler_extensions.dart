@@ -4,7 +4,7 @@ import 'package:flame_svg/vector_paint.dart';
 import 'package:flame_svg/vector_path.dart';
 import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
-/// BlendMode mapping from the vector graphics compiler.
+/// [BlendMode] mapping from the vector graphics compiler.
 extension BlendModeConverter on BlendMode {
   /// Converts a [BlendMode] to a [ui.BlendMode].
   ui.BlendMode toUiBlendMode() {
@@ -71,7 +71,7 @@ extension BlendModeConverter on BlendMode {
   }
 }
 
-/// StrokeCap mapping from the vector graphics compiler.
+/// [StrokeCap] mapping from the vector graphics compiler.
 extension StrokeCapConverter on StrokeCap {
   /// Converts a [StrokeCap] to a [ui.StrokeCap].
   ui.StrokeCap toUiStrokeCap() {
@@ -86,7 +86,7 @@ extension StrokeCapConverter on StrokeCap {
   }
 }
 
-/// StrokeJoin mapping from the vector graphics compiler.
+/// [StrokeJoin] mapping from the vector graphics compiler.
 extension StrokeJoinConverter on StrokeJoin {
   /// Converts a [StrokeJoin] to a [ui.StrokeJoin].
   ui.StrokeJoin toUiStrokeJoin() {
@@ -101,7 +101,7 @@ extension StrokeJoinConverter on StrokeJoin {
   }
 }
 
-/// Paint mapping from the vector graphics compiler.
+/// Paint conversion from the vector graphics compiler.
 extension PaintConverter on Paint {
   /// Converts a [Paint] to a [VectorPaint].
   VectorPaint toVectorPaint() {
@@ -145,7 +145,7 @@ extension PaintConverter on Paint {
   }
 }
 
-/// Path mapping from the vector graphics compiler.
+/// Path conversion from the vector graphics compiler.
 extension PathConverter on Path {
   /// Converts a [Path] to a [VectorPath], using the provided [paints] and
   /// optionally specifying a [pathId] and [description] for debugging purposes.
@@ -191,5 +191,13 @@ extension PathConverter on Path {
       }
     }
     return p;
+  }
+}
+
+/// [Rect] conversion for the vector graphics compiler.
+extension RectConverter on Rect {
+  /// Convert a [Rect] to a [ui.Rect].
+  ui.Rect toUiRect() {
+    return ui.Rect.fromLTRB(left, top, right, bottom);
   }
 }

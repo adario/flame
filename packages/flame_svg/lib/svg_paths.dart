@@ -11,16 +11,17 @@ import 'package:flutter/foundation.dart';
 import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
 /// A container for SVG files, represented as a collection of [VectorPath]
-/// and associated [VectorPaint] objects
+/// and associated [VectorPaint] objects.
 class SvgPaths {
-  /// Create from an [svg] string.
+  /// Create from an [svg] string, and perform an optional [merge]
+  /// of all SVG paths sharing the same paint.
   SvgPaths(String svg, {this.merge = true}) {
     _importSvg(svg);
   }
 
   /// Create an [SvgPaths] from a [fileName] in the `assets` folder,
   /// reachable via the [cache] (by default, [Flame.assets]), and
-  /// optionally merge paths with identical paints.
+  /// optionally [merge] paths with identical paints.
   static Future<SvgPaths> fromFile(
     String fileName, {
     AssetsCache? cache,
@@ -61,7 +62,8 @@ class SvgPaths {
   /// The original size reported by the [VectorInstructions].
   Size get size => Size(width, height);
 
-  /// The original bounds for all paths.
+  /// The original bounds for the whole SVG file, computed as the union
+  /// of all the vector graphics compiler paths.
   ui.Rect get bounds => _bounds ??= _computeBounds();
 
   /// Renders all paths on the [canvas] using the dimensions in [size]
@@ -175,15 +177,21 @@ class SvgPaths {
       final index = entry.key;
       final paths = entry.value;
       final paint = paints[index]!;
-      final merged = ui.Path();
-      for (final path in paths) {
-        merged.addPath(path.path, .zero);
+      ui.Path merged;
+      if (paths.length > 1) {
+        merged = ui.Path();
+        for (final path in paths) {
+          merged.addPath(path.path, .zero);
+        }
+      } else {
+        assert(paths.isNotEmpty, 'Empty paths');
+        merged = paths.first.path;
       }
       _paths.add(
         VectorPath(
           merged,
           paint,
-          pathId: paths.length,
+          pathId: _paths.length,
           description: StringBuffer(),
         ),
       );
@@ -194,9 +202,12 @@ class SvgPaths {
   ui.Rect _computeBounds() {
     var bounds = ui.Rect.zero;
     for (final path in _instructions.paths) {
-      final x = path.bounds();
-      final t = ui.Rect.fromLTRB(x.left, x.top, x.right, x.bottom);
-      bounds = bounds.expandToInclude(t);
+      final b = path.bounds().toUiRect();
+      if (bounds == .zero) {
+        bounds = b;
+      } else {
+        bounds = bounds.expandToInclude(b);
+      }
     }
     return bounds;
   }
