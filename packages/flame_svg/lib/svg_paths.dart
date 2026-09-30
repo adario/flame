@@ -12,6 +12,7 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
 /// A container for SVG files, represented as a collection of [VectorPath]
 /// and associated [VectorPaint] objects.
+@immutable
 class SvgPaths {
   /// Create from an [svg] string, and perform an optional [merge]
   /// of all SVG paths sharing the same paint.
@@ -212,7 +213,7 @@ class SvgPaths {
     return bounds;
   }
 
-  ui.Rect? _bounds;
+  late final ui.Rect? _bounds;
   late final VectorInstructions _instructions;
   late final List<VectorPath> _paths = [];
   late final List<VectorPaint> _paints = [];
