@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'dart:ui' as ui;
 
 import 'package:flame/cache.dart';
@@ -67,39 +66,7 @@ class SvgPaths {
   /// of all the vector graphics compiler paths.
   ui.Rect get bounds => _bounds ??= _computeBounds();
 
-  /// Renders all paths on the [canvas] using the dimensions in [size]
-  /// with an optional [overridePaint] used instead of the [VectorPaint]s.
-  void render(ui.Canvas canvas, Vector2 size, {ui.Paint? overridePaint}) {
-    final scale = math.min(size.x / width, size.y / height);
-    canvas.save();
-    canvas.translate(
-      (size.x - width * scale) * 0.5,
-      (size.y - height * scale) * 0.5,
-    );
-    canvas.scale(scale);
-
-    _render(canvas, overridePaint);
-
-    canvas.restore();
-  }
-
-  /// Renders the svg on the [canvas] on the given [position] using the
-  /// dimensions in [size].
-  void renderPosition(ui.Canvas canvas, Vector2 position, Vector2 size) {
-    canvas.renderAt(position, (c) => render(c, size));
-  }
-
   // MARK: - Private methods
-
-  void _render(ui.Canvas canvas, ui.Paint? overridePaint) {
-    assert(_paints.length == length, 'Paints length mismatch');
-    final overrideVP = overridePaint != null
-        ? VectorPaint.paint(overridePaint)
-        : null;
-    for (var i = 0; i < length; i++) {
-      _paths[i].render(canvas, overrideVP ?? _paints[i]);
-    }
-  }
 
   void _importSvg(String svg) {
     try {
