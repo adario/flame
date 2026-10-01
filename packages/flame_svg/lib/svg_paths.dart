@@ -14,14 +14,14 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 @immutable
 class SvgPaths {
   /// Create from an [svg] string, and perform an optional [merge]
-  /// of all SVG paths sharing the same paint.
+  /// of consecutive SVG paths sharing the same paint.
   SvgPaths(String svg, {this.merge = true}) {
     _importSvg(svg);
   }
 
   /// Create an [SvgPaths] from a [fileName] in the `assets` folder,
   /// reachable via the [cache] (by default, [Flame.assets]), and
-  /// optionally [merge] paths with identical paints.
+  /// optionally [merge] consecutive paths with identical paints.
   static Future<SvgPaths> fromFile(
     String fileName, {
     AssetsCache? cache,
@@ -33,7 +33,9 @@ class SvgPaths {
     return SvgPaths(svg, merge: merge);
   }
 
-  /// Whether we merge paths with identical paints.
+  /// Whether we merge consecutive paths with identical paints, which keeps
+  /// the painting order of the SVG file. Paths with both a fill and a stroke,
+  /// or with a different fill type, are not merged.
   final bool merge;
 
   /// The number of [VectorPath] objects in this container.
@@ -79,92 +81,86 @@ class SvgPaths {
 
     final paints = <int, VectorPaint>{};
     final paths = <int, VectorPath>{};
-    final pathPaints = <int, List<VectorPath>>{};
+
+    // The run of consecutive paths that are going to be merged, which are
+    // added to the result as soon as the run ends. Merging only consecutive
+    // paths keeps the painting order of the SVG file.
+    final run = <VectorPath>[];
+    VectorPaint? runPaint;
+    int? runPaintId;
+
+    void endRun() {
+      if (run.isEmpty) {
+        return;
+      }
+      if (run.length == 1) {
+        _paths.add(run.first);
+      } else {
+        final merged = ui.Path()..fillType = run.first.path.fillType;
+        for (final path in run) {
+          merged.addPath(path.path, .zero);
+        }
+        _paths.add(
+          VectorPath(
+            merged,
+            runPaint!,
+            pathId: _paths.length,
+            description: StringBuffer(),
+          ),
+        );
+      }
+      _paints.add(runPaint!);
+      run.clear();
+      runPaint = null;
+      runPaintId = null;
+    }
 
     // Walk all vector instructions, considering only path commands.
     for (final c in _instructions.commands) {
       if (c.type != .path) {
+        // Other commands, like clipping, separate the paths around them.
         debugPrint('SVG skipping draw command = $c');
+        endRun();
         continue;
       }
 
-      // Convert the paint for the current path.
       final paintId = c.paintId;
-      VectorPaint? paint;
-      if (paintId != null) {
-        paint =
-            paints[paintId] ?? _instructions.paints[paintId].toVectorPaint();
-        paints[paintId] = paint;
-        _paints.add(paint);
-      }
-
-      // Convert the current path.
       final pathId = c.objectId;
-      if (pathId != null) {
-        final path =
-            paths[pathId] ??
-            _instructions.paths[pathId].toVectorPath(
-              paint!,
-              pathId: pathId,
-              description: StringBuffer(),
-            );
-        paths[pathId] = path;
-        _paths.add(path);
+      assert(paintId != null && pathId != null, 'Invalid path or paint ID');
+      if (paintId == null || pathId == null) {
+        endRun();
+        continue;
+      }
 
-        // If a merge is requested, Keep track of all paths using
-        // the current paint.
-        if (merge) {
-          assert(paintId != null, 'Path $pathId has no valid paint');
-          if (paintId != null) {
-            if (pathPaints[paintId] == null) {
-              pathPaints[paintId] = [path];
-            } else {
-              pathPaints[paintId]!.add(path);
-            }
-          }
-        }
+      // Convert the paint and the path.
+      final paint =
+          paints[paintId] ??= _instructions.paints[paintId].toVectorPaint();
+      final path =
+          paths[pathId] ??= _instructions.paths[pathId].toVectorPath(
+            paint,
+            pathId: pathId,
+            description: StringBuffer(),
+          );
+
+      // Paths with both a fill and a stroke are never merged, since the fill
+      // and stroke of a merged path are painted after all of its paths, which
+      // would change the painting order. The same goes for paths with a
+      // different fill type, which a merged path can only have one of.
+      final canMerge = merge && !(paint.isFilled && paint.isStroked);
+      if (!canMerge ||
+          paintId != runPaintId ||
+          path.path.fillType != run.first.path.fillType) {
+        endRun();
+      }
+      run.add(path);
+      runPaint = paint;
+      runPaintId = paintId;
+      if (!canMerge) {
+        endRun();
       }
     }
+    endRun();
     assert(_paints.length == length, 'Paints/Paths length mismatch');
-
-    if (pathPaints.isNotEmpty && paints.length < paths.length) {
-      // If requested and we have fewer paints than paths, merge all those
-      // sharing the same paint.
-      _merge(paints, pathPaints);
-    }
-  }
-
-  void _merge(
-    Map<int, VectorPaint> paints,
-    Map<int, List<VectorPath>> pathPaints,
-  ) {
-    _paths.clear();
-    _paints.clear();
-
-    for (final entry in pathPaints.entries) {
-      final index = entry.key;
-      final paths = entry.value;
-      final paint = paints[index]!;
-      ui.Path merged;
-      if (paths.length > 1) {
-        merged = ui.Path();
-        for (final path in paths) {
-          merged.addPath(path.path, .zero);
-        }
-      } else {
-        assert(paths.isNotEmpty, 'Empty paths');
-        merged = paths.first.path;
-      }
-      _paths.add(
-        VectorPath(
-          merged,
-          paint,
-          pathId: _paths.length,
-          description: StringBuffer(),
-        ),
-      );
-      _paints.add(paint);
-    }
   }
 
   ui.Rect _computeBounds() {

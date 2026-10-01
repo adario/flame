@@ -48,7 +48,7 @@ class SvgPathsComponent extends PositionComponent {
   }) async {
     final svgFilename = '$svgName.svg';
     final svgPathName = (assetsPath ?? 'assets/svgs/') + svgFilename;
-    final svg = await SvgPaths.fromFile(svgPathName, merge: false);
+    final svg = await SvgPaths.fromFile(svgPathName);
     return SvgPathsComponent(
       svg,
       renderHitboxes: renderHitboxes,
