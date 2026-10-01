@@ -38,15 +38,15 @@ class SvgPathsComponent extends PositionComponent {
   }) : super(
          size: size ?? svg.bounds.size.toVector2(),
          children: [
-           ...createPathComponents(
-             svg,
-             size,
-             hitboxes: hitboxes,
-             renderHitboxes: renderHitboxes,
-             filter: filter,
-             sampling: sampling,
-             tolerance: tolerance,
-           ),
+           if (hitboxes == SvgHitboxes.perPath)
+             ...createPathComponents(
+               svg,
+               size,
+               renderHitboxes: renderHitboxes,
+               filter: filter,
+               sampling: sampling,
+               tolerance: tolerance,
+             ),
            if (hitboxes == SvgHitboxes.single)
              createSvgPathsHitbox(
                svg,
@@ -103,6 +103,17 @@ class SvgPathsComponent extends PositionComponent {
   /// How the hitboxes of the component are created.
   final SvgHitboxes hitboxes;
 
+  late final Rect _area = svg.bounds;
+
+  /// With [SvgHitboxes.single] the paths are rendered by the component
+  /// itself, since it has no [PathComponent]s.
+  @override
+  void render(Canvas canvas) {
+    if (hitboxes == SvgHitboxes.single) {
+      svg.render(canvas, size, area: _area);
+    }
+  }
+
   // Temporary.
   static final _whiteStroke = Paint()
     ..color = const Color(0xffffffff)
@@ -136,14 +147,14 @@ class SvgPathsComponent extends PositionComponent {
   /// center of the component is the center of the SVG contents, which is what
   /// the component rotates and scales around.
   ///
-  /// With [SvgHitboxes.perPath] each of the components gets a [PathHitbox].
+  /// Each of the components gets a [PathHitbox], as with
+  /// [SvgHitboxes.perPath].
   ///
   /// The [sampling] and [tolerance] of the polygons, see [PathComponent.new],
   /// are in the units of the [size], and not in those of the SVG file.
   static List<PathComponent> createPathComponents(
     SvgPaths svg,
     Vector2? size, {
-    SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
     double sampling = 1.0,
@@ -177,19 +188,16 @@ class SvgPathsComponent extends PositionComponent {
       // hitbox. The rendering of the component only changes for a path that
       // is both filled and stroked, so that one keeps its original path.
       final closedPath = _hitboxPath(path, vectorPaint);
-      PathHitbox? hitbox;
-      if (hitboxes == SvgHitboxes.perPath) {
-        hitbox = PathHitbox(
-          path: closedPath,
-          sampling: pathSampling,
-          tolerance: pathTolerance,
-          filter: filter ?? true,
-        );
-        if (renderHitboxes ?? false) {
-          hitbox
-            ..renderShape = true
-            ..paint = _whiteStroke;
-        }
+      final hitbox = PathHitbox(
+        path: closedPath,
+        sampling: pathSampling,
+        tolerance: pathTolerance,
+        filter: filter ?? true,
+      );
+      if (renderHitboxes ?? false) {
+        hitbox
+          ..renderShape = true
+          ..paint = _whiteStroke;
       }
       paths.add(
         PathComponent(
@@ -201,7 +209,7 @@ class SvgPathsComponent extends PositionComponent {
           sampling: pathSampling,
           tolerance: pathTolerance,
           filter: filter ?? true,
-          children: [?hitbox],
+          children: [hitbox],
         ),
       );
     }

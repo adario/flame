@@ -104,6 +104,22 @@ class VectorPath {
     return result;
   }
 
+  /// Renders the path on the [canvas] with an optional [overridePaint], used
+  /// instead of the default [paint].
+  ///
+  /// The fill is drawn from the original [path], so that its open contours
+  /// are closed implicitly, like in the SVG file, and so is the stroke, so
+  /// that closed contours are stroked as well.
+  void render(ui.Canvas canvas, [VectorPaint? overridePaint]) {
+    final paint = overridePaint ?? this.paint;
+    if (paint.fill != null) {
+      canvas.drawPath(path, paint.fill!);
+    }
+    if (paint.stroke != null) {
+      canvas.drawPath(path, paint.stroke!);
+    }
+  }
+
   /// The default paint.
   final VectorPaint paint;
 

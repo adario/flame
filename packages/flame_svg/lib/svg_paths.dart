@@ -1,3 +1,4 @@
+import 'dart:math' show min;
 import 'dart:ui' as ui;
 
 import 'package:flame/cache.dart';
@@ -67,6 +68,47 @@ class SvgPaths {
   /// The original bounds for the whole SVG file, computed as the union
   /// of all the vector graphics compiler paths.
   ui.Rect get bounds => _computeBounds();
+
+  /// Renders all paths on the [canvas], fitting the [area] of the SVG file
+  /// into the dimensions in [size] while keeping the aspect ratio, and
+  /// centering it. The [area] is the whole SVG file by default.
+  ///
+  /// An optional [overridePaint] is used instead of the [VectorPaint]s.
+  void render(
+    ui.Canvas canvas,
+    Vector2 size, {
+    ui.Paint? overridePaint,
+    ui.Rect? area,
+  }) {
+    final source = area ?? ui.Rect.fromLTWH(0, 0, width, height);
+    final scale = min(size.x / source.width, size.y / source.height);
+    canvas.save();
+    canvas.translate(
+      (size.x - source.width * scale) * 0.5 - source.left * scale,
+      (size.y - source.height * scale) * 0.5 - source.top * scale,
+    );
+    canvas.scale(scale);
+
+    final overrideVP = overridePaint != null
+        ? VectorPaint.paint(overridePaint)
+        : null;
+    for (var i = 0; i < length; i++) {
+      pathAt(i)?.render(canvas, overrideVP ?? paintAt(i));
+    }
+
+    canvas.restore();
+  }
+
+  /// Renders all paths on the [canvas] at the given [position] using the
+  /// dimensions in [size], see [render].
+  void renderPosition(
+    ui.Canvas canvas,
+    Vector2 position,
+    Vector2 size, {
+    ui.Rect? area,
+  }) {
+    canvas.renderAt(position, (c) => render(c, size, area: area));
+  }
 
   // MARK: - Private methods
 
