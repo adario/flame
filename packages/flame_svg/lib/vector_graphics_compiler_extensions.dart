@@ -118,8 +118,13 @@ extension PaintConverter on Paint {
     p.style = .stroke;
     p.blendMode = blendMode.toUiBlendMode();
     p.strokeWidth = s.width ?? p.strokeWidth;
-    p.strokeMiterLimit = s.miterLimit ?? p.strokeMiterLimit;
     p.color = ui.Color(s.color.value);
+    // Without a miter limit we keep the default of the engine: reading it
+    // back from the paint and assigning it gives a different value.
+    final m = s.miterLimit;
+    if (m != null) {
+      p.strokeMiterLimit = m;
+    }
     final c = s.cap;
     if (c != null) {
       p.strokeCap = c.toUiStrokeCap();
