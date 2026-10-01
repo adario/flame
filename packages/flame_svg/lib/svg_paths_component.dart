@@ -6,6 +6,7 @@ import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame/palette.dart' show BasicPalette;
 import 'package:flame_svg/flame_svg.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 
 /// How an [SvgPathsComponent] creates its hitboxes.
 enum SvgHitboxes {
@@ -47,7 +48,7 @@ class SvgPathsComponent extends PositionComponent {
                sampling: sampling,
                tolerance: tolerance,
              ),
-           if (hitboxes == SvgHitboxes.single)
+           if (hitboxes == SvgHitboxes.single && svg.length > 0)
              createSvgPathsHitbox(
                svg,
                size,
@@ -77,9 +78,7 @@ class SvgPathsComponent extends PositionComponent {
     int? priority,
     ComponentKey? key,
   }) async {
-    final svgFilename = '$svgName.svg';
-    final svgPathName = (assetsPath ?? 'assets/svgs/') + svgFilename;
-    final svg = await SvgPaths.fromFile(svgPathName);
+    final svg = await SvgPaths.fromFile(assetPath(svgName, assetsPath));
     return SvgPathsComponent(
       svg,
       hitboxes: hitboxes,
@@ -95,6 +94,14 @@ class SvgPathsComponent extends PositionComponent {
       priority: priority,
       key: key,
     );
+  }
+
+  /// The path of the `.svg` file called [svgName] in the [assetsPath] folder,
+  /// which is `assets/svgs/` by default, with or without a trailing slash.
+  @visibleForTesting
+  static String assetPath(String svgName, [String? assetsPath]) {
+    final folder = assetsPath ?? 'assets/svgs/';
+    return '${folder.endsWith('/') ? folder : '$folder/'}$svgName.svg';
   }
 
   /// The SVG file.
@@ -114,13 +121,14 @@ class SvgPathsComponent extends PositionComponent {
     }
   }
 
-  // Temporary.
-  static final _whiteStroke = Paint()
+  // Temporary: each hitbox and component gets its own paint, so that changing
+  // the paint of one does not change the others.
+  static Paint _whiteStroke() => Paint()
     ..color = const Color(0xffffffff)
     ..style = PaintingStyle.stroke;
 
   // Temporary.
-  static final _pathStroke = Paint()
+  static Paint _pathStroke() => Paint()
     ..color = BasicPalette.blue.color
     ..style = PaintingStyle.stroke
     ..strokeWidth = 3
@@ -136,7 +144,11 @@ class SvgPathsComponent extends PositionComponent {
     final full = svg.bounds;
     final fullSize = full.size.toVector2();
     final target = size ?? fullSize;
-    final fit = min(target.x / fullSize.x, target.y / fullSize.y);
+    var fit = min(target.x / fullSize.x, target.y / fullSize.y);
+    if (!fit.isFinite) {
+      // There is nothing to fit, like in an empty SVG file.
+      fit = 1;
+    }
     return (full: full, fit: fit, offset: (target - fullSize * fit) / 2);
   }
 
@@ -197,14 +209,14 @@ class SvgPathsComponent extends PositionComponent {
       if (renderHitboxes ?? false) {
         hitbox
           ..renderShape = true
-          ..paint = _whiteStroke;
+          ..paint = _whiteStroke();
       }
       paths.add(
         PathComponent(
           path: (vectorPaint?.isStroked ?? false) ? path : closedPath,
           position: position,
           scale: Vector2.all(fit),
-          paint: paint ?? _pathStroke,
+          paint: paint ?? _pathStroke(),
           paintLayers: vectorPaint?.paintLayers,
           sampling: pathSampling,
           tolerance: pathTolerance,
@@ -252,7 +264,7 @@ class SvgPathsComponent extends PositionComponent {
     if (renderHitboxes ?? false) {
       hitbox
         ..renderShape = true
-        ..paint = _whiteStroke;
+        ..paint = _whiteStroke();
     }
     return hitbox;
   }

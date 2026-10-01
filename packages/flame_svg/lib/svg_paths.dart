@@ -16,6 +16,8 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 class SvgPaths {
   /// Create from an [svg] string, and perform an optional [merge]
   /// of consecutive SVG paths sharing the same paint.
+  ///
+  /// Throws if the [svg] can not be parsed.
   SvgPaths(String svg, {this.merge = true}) {
     _importSvg(svg);
   }
@@ -36,7 +38,8 @@ class SvgPaths {
 
   /// Whether we merge consecutive paths with identical paints, which keeps
   /// the painting order of the SVG file. Paths with both a fill and a stroke,
-  /// or with a different fill type, are not merged.
+  /// with a different fill type, or whose bounds, including their strokes,
+  /// overlap those of the paths already merged, are not merged.
   final bool merge;
 
   /// The number of [VectorPath] objects in this container.
@@ -82,6 +85,10 @@ class SvgPaths {
   }) {
     final source = area ?? ui.Rect.fromLTWH(0, 0, width, height);
     final scale = min(size.x / source.width, size.y / source.height);
+    if (!scale.isFinite) {
+      // There is nothing to fit, like in an empty SVG file.
+      return;
+    }
     canvas.save();
     canvas.translate(
       (size.x - source.width * scale) * 0.5 - source.left * scale,
@@ -113,21 +120,20 @@ class SvgPaths {
   // MARK: - Private methods
 
   void _importSvg(String svg) {
-    try {
-      _instructions = parseWithoutOptimizers(svg);
-    } on Exception catch (err) {
-      // ignore: avoid_print
-      print('!!! SVG error: $err');
-      return;
-    }
+    _instructions = parseWithoutOptimizers(svg);
 
     final paints = <int, VectorPaint>{};
     final paths = <int, VectorPath>{};
 
     // The run of consecutive paths that are going to be merged, which are
     // added to the result as soon as the run ends. Merging only consecutive
-    // paths keeps the painting order of the SVG file.
+    // paths keeps the painting order of the SVG file, and merging only paths
+    // whose painted bounds do not overlap keeps their appearance: overlapping
+    // contours of a merged path could cancel each other out, depending on
+    // their direction and on the fill type, and overlapping translucent paints
+    // would not add up.
     final run = <VectorPath>[];
+    final runBounds = <ui.Rect>[];
     VectorPaint? runPaint;
     int? runPaintId;
 
@@ -153,6 +159,7 @@ class SvgPaths {
       }
       _paints.add(runPaint!);
       run.clear();
+      runBounds.clear();
       runPaint = null;
       runPaintId = null;
     }
@@ -189,12 +196,15 @@ class SvgPaths {
       // would change the painting order. The same goes for paths with a
       // different fill type, which a merged path can only have one of.
       final canMerge = merge && !(paint.isFilled && paint.isStroked);
+      final bounds = _paintedBounds(path.path.getBounds(), paint);
       if (!canMerge ||
           paintId != runPaintId ||
-          path.path.fillType != run.first.path.fillType) {
+          path.path.fillType != run.first.path.fillType ||
+          runBounds.any(bounds.overlaps)) {
         endRun();
       }
       run.add(path);
+      runBounds.add(bounds);
       runPaint = paint;
       runPaintId = paintId;
       if (!canMerge) {
@@ -203,6 +213,14 @@ class SvgPaths {
     }
     endRun();
     assert(_paints.length == length, 'Paints/Paths length mismatch');
+  }
+
+  /// The [bounds] of a path, grown to include its stroke, if any. The stroke
+  /// can reach up to the miter limit, which is 4 by default, times half of its
+  /// width, so we use twice its width to be on the safe side.
+  static ui.Rect _paintedBounds(ui.Rect bounds, VectorPaint paint) {
+    final stroke = paint.stroke;
+    return stroke == null ? bounds : bounds.inflate(stroke.strokeWidth * 2);
   }
 
   ui.Rect _computeBounds() {

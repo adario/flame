@@ -58,6 +58,81 @@ void main() {
       expect(svg.length, 2);
     });
 
+    group('merge with overlapping paths', () {
+      String svgOf(List<String> paths, [String style = '']) {
+        final elements = [
+          for (final d in paths) '<path d="$d" fill="#ff0000" $style/> ',
+        ];
+        return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> '
+            '${elements.join()}</svg>';
+      }
+
+      const a = 'M0 0L50 0L50 50L0 50Z';
+      const overlapsA = 'M25 25L75 25L75 75L25 75Z';
+      const farFromA = 'M60 60L90 60L90 90L60 90Z';
+      const besideA = 'M50 0L90 0L90 50L50 50Z';
+
+      test('merges paths that do not overlap', () {
+        expect(SvgPaths(svgOf([a, farFromA])).length, 1);
+      });
+
+      test('merges paths that only touch', () {
+        expect(SvgPaths(svgOf([a, besideA])).length, 1);
+      });
+
+      test('does not merge paths that overlap', () {
+        expect(SvgPaths(svgOf([a, overlapsA])).length, 2);
+      });
+
+      test('merges the paths after an overlap that do not overlap', () {
+        // The second path overlaps the first one, but not the third one.
+        const farFromBoth = 'M80 80L95 80L95 95L80 95Z';
+        expect(SvgPaths(svgOf([a, overlapsA, farFromBoth])).length, 2);
+      });
+
+      test('does not merge strokes that only reach each other', () {
+        // The lines are 5 units apart, and their strokes are 4 units wide.
+        const lines = ['M10 10L90 10', 'M10 15L90 15'];
+        const style = 'fill="none" stroke="#000000" stroke-width="4"';
+        expect(SvgPaths(svgOf(lines, style)).length, 2);
+        expect(SvgPaths(svgOf(lines, style), merge: false).length, 2);
+      });
+
+      testWidgets('keeps the overlap of even-odd paths filled', (tester) async {
+        final svg = SvgPaths(
+          svgOf([a, overlapsA], 'fill-rule="evenodd"'),
+        );
+        final alpha = (await tester.runAsync(() async {
+          final recorder = PictureRecorder();
+          svg.render(Canvas(recorder), Vector2.all(100));
+          final image = await recorder.endRecording().toImage(100, 100);
+          final data = (await image.toByteData())!;
+          return data.getUint8((35 * 100 + 35) * 4 + 3);
+        }))!;
+        expect(alpha, 255);
+      });
+    });
+
+    group('with an SVG that can not be used', () {
+      test('throws if it can not be parsed', () {
+        expect(() => SvgPaths('garbage'), throwsA(anything));
+        expect(() => SvgPaths(''), throwsA(anything));
+      });
+
+      testWidgets('renders nothing if it is empty', (tester) async {
+        final svg = SvgPaths(
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"/>',
+        );
+        expect(svg.length, 0);
+        final recorder = PictureRecorder();
+        expect(
+          () =>
+              svg.render(Canvas(recorder), Vector2.all(100), area: svg.bounds),
+          returnsNormally,
+        );
+      });
+    });
+
     group('render', () {
       // A red square from (50, 50) to (55, 55), in a 100x100 SVG.
       final svg = SvgPaths(

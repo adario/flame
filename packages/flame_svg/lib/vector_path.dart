@@ -156,16 +156,13 @@ class VectorPath {
     return desc;
   }
 
+  /// Two vector paths are equal when they have the same [path] object and the
+  /// same [paint], since a [ui.Path] has no value equality.
   @override
-  int get hashCode => Object.hash(paint, _open.length, _closed.length);
+  int get hashCode => Object.hash(paint, path);
 
   @override
   bool operator ==(Object other) {
-    if (other is VectorPath) {
-      return paint == other.paint &&
-          _open.length == other._open.length &&
-          _closed.length == other._closed.length;
-    }
-    return false;
+    return other is VectorPath && paint == other.paint && path == other.path;
   }
 }

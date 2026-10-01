@@ -11,6 +11,7 @@ SvgPathsComponent _componentOf(
   SvgHitboxes hitboxes = SvgHitboxes.single,
   Vector2? size,
   double sampling = 1.0,
+  bool renderHitboxes = false,
 }) {
   final buffer = StringBuffer(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> ',
@@ -24,6 +25,7 @@ SvgPathsComponent _componentOf(
     hitboxes: hitboxes,
     size: size,
     sampling: sampling,
+    renderHitboxes: renderHitboxes,
   );
 }
 
@@ -43,6 +45,73 @@ PathHitbox _perPathHitboxOf(String path, String style) {
 
 void main() {
   group('SvgPathsComponent', () {
+    group('assetPath', () {
+      test('is in assets/svgs by default', () {
+        expect(SvgPathsComponent.assetPath('ship'), 'assets/svgs/ship.svg');
+      });
+
+      test('adds the missing slash of the folder', () {
+        expect(
+          SvgPathsComponent.assetPath('ship', 'assets/other'),
+          'assets/other/ship.svg',
+        );
+      });
+
+      test('keeps the slash of the folder', () {
+        expect(
+          SvgPathsComponent.assetPath('ship', 'assets/other/'),
+          'assets/other/ship.svg',
+        );
+      });
+    });
+
+    test('has no children for an empty SVG', () {
+      final svg = SvgPaths(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"/>',
+      );
+      for (final hitboxes in SvgHitboxes.values) {
+        final component = SvgPathsComponent(
+          svg,
+          hitboxes: hitboxes,
+          size: Vector2.all(100),
+        );
+        expect(component.children, isEmpty, reason: hitboxes.name);
+      }
+    });
+
+    group('hitbox paints', () {
+      const paths = [
+        ('M0 0L50 0L50 50Z', 'fill="#ff0000"'),
+        ('M50 50L100 50L100 100Z', 'fill="#00ff00"'),
+      ];
+
+      test('are not shared between per-path hitboxes', () {
+        final component = _componentOf(
+          paths,
+          hitboxes: SvgHitboxes.perPath,
+          renderHitboxes: true,
+        );
+        final hitboxes = component.children
+            .whereType<PathComponent>()
+            .map((path) => path.children.whereType<PathHitbox>().single)
+            .toList();
+        expect(hitboxes.length, 2);
+        expect(identical(hitboxes[0].paint, hitboxes[1].paint), isFalse);
+      });
+
+      test('are not shared between single hitboxes', () {
+        final first = _componentOf(paths, renderHitboxes: true);
+        final second = _componentOf(paths, renderHitboxes: true);
+        expect(
+          identical(
+            first.children.whereType<SvgPathsHitbox>().single.paint,
+            second.children.whereType<SvgPathsHitbox>().single.paint,
+          ),
+          isFalse,
+        );
+      });
+    });
+
     test('closes the open contours of filled paths for the hitbox', () {
       final hitbox = _perPathHitboxOf('M0 0L50 0L50 50', 'fill="#ff0000"');
       expect(hitbox.polygons.length, 1);

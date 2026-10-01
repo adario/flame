@@ -108,22 +108,29 @@ void main() {
     });
 
     group('equality', () {
-      test('is by paint and the number of contours', () {
-        // Paints are compared by identity.
+      test('is by paint and path', () {
+        // Both are compared by identity.
         final paint = _filled;
-        final a = VectorPath(_square(0, 0, 10), paint);
-        final b = VectorPath(_square(50, 50, 20), paint);
+        final path = _square(0, 0, 10);
+        final a = VectorPath(path, paint);
+        final b = VectorPath(path, paint, pathId: 3);
         expect(a, b);
         expect(a.hashCode, b.hashCode);
       });
 
-      test('differs with another number of contours', () {
-        final one = VectorPath(_square(0, 0, 10), _filled);
-        final two = VectorPath(
-          _square(0, 0, 10)..addRect(const Rect.fromLTWH(20, 0, 10, 10)),
-          _filled,
-        );
-        expect(one, isNot(two));
+      test('differs with another path, even with the same contours', () {
+        final paint = _filled;
+        final a = VectorPath(_square(0, 0, 10), paint);
+        final b = VectorPath(_square(50, 50, 20), paint);
+        expect(a, isNot(b));
+      });
+
+      test('works in sets', () {
+        final paint = _filled;
+        final path = _square(0, 0, 10);
+        final other = VectorPath(_square(50, 50, 20), paint);
+        final set = {VectorPath(path, paint), VectorPath(path, paint), other};
+        expect(set.length, 2);
       });
 
       test('differs with another paint', () {
