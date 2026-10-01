@@ -111,7 +111,15 @@ class SvgPathsComponent extends PositionComponent {
       final position =
           (path.getBounds().topLeft - full.topLeft).toVector2() * fit + offset;
       final paint = vectorPaint?.paint;
-      final hitbox = PathHitbox(path: path, filter: filter ?? true);
+
+      // Filling a path closes its open contours implicitly, but the polygons
+      // of a PathComponent only come from closed contours: without closing
+      // them, the filled areas of open contours would be missing from the
+      // hitbox. The rendering of the component only changes for a path that
+      // is both filled and stroked, so that one keeps its original path.
+      final isFilled = vectorPaint?.isFilled ?? false;
+      final closedPath = isFilled ? _closeContours(path) : path;
+      final hitbox = PathHitbox(path: closedPath, filter: filter ?? true);
       if (renderHitboxes ?? false) {
         hitbox
           ..renderShape = true
@@ -119,7 +127,7 @@ class SvgPathsComponent extends PositionComponent {
       }
       paths.add(
         PathComponent(
-          path: path,
+          path: (vectorPaint?.isStroked ?? false) ? path : closedPath,
           position: position,
           scale: Vector2.all(fit),
           paint: paint ?? _pathStroke,
@@ -130,5 +138,22 @@ class SvgPathsComponent extends PositionComponent {
       );
     }
     return paths;
+  }
+
+  /// Returns the [path] with all of its contours closed, or the [path] itself
+  /// if they already are.
+  static Path _closeContours(Path path) {
+    final metrics = path.computeMetrics().toList();
+    if (metrics.every((metric) => metric.isClosed)) {
+      return path;
+    }
+    final closed = Path()..fillType = path.fillType;
+    for (final metric in metrics) {
+      closed.addPath(
+        metric.extractPath(0, metric.length)..close(),
+        Offset.zero,
+      );
+    }
+    return closed;
   }
 }
