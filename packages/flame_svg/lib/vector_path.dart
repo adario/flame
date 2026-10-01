@@ -33,6 +33,7 @@ class VectorPath {
   void _processStroked() {
     // Stroked paths are simpler: we just use the original path as the stroke.
     _strokePath = path;
+    _fillPath = null;
     description?.writeln('VectorPath $pathId: stroked path');
   }
 
