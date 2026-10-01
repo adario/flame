@@ -64,7 +64,7 @@ class SvgPaths {
 
   /// The original bounds for the whole SVG file, computed as the union
   /// of all the vector graphics compiler paths.
-  ui.Rect get bounds => _bounds ??= _computeBounds();
+  ui.Rect get bounds => _computeBounds();
 
   // MARK: - Private methods
 
@@ -180,7 +180,6 @@ class SvgPaths {
     return bounds;
   }
 
-  late final ui.Rect? _bounds;
   late final VectorInstructions _instructions;
   late final List<VectorPath> _paths = [];
   late final List<VectorPaint> _paints = [];
