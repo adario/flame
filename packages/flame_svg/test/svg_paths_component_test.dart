@@ -6,6 +6,8 @@ import 'package:flutter_test/flutter_test.dart';
 SvgPathsComponent _componentOf(
   List<(String, String)> paths, {
   SvgHitboxes hitboxes = SvgHitboxes.single,
+  Vector2? size,
+  double sampling = 1.0,
 }) {
   final buffer = StringBuffer(
     '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> ',
@@ -14,7 +16,17 @@ SvgPathsComponent _componentOf(
     buffer.write('<path d="$path" $style/> ');
   }
   buffer.write('</svg>');
-  return SvgPathsComponent(SvgPaths(buffer.toString()), hitboxes: hitboxes);
+  return SvgPathsComponent(
+    SvgPaths(buffer.toString()),
+    hitboxes: hitboxes,
+    size: size,
+    sampling: sampling,
+  );
+}
+
+int _vertices(SvgPathsComponent component) {
+  final hitbox = component.children.whereType<SvgPathsHitbox>().single;
+  return hitbox.polygons.fold(0, (sum, polygon) => sum + polygon.length);
 }
 
 PathHitbox _perPathHitboxOf(String path, String style) {
@@ -64,6 +76,34 @@ void main() {
         expect(path.children.whereType<PathHitbox>().length, 1);
       }
       expect(component.children.whereType<SvgPathsHitbox>(), isEmpty);
+    });
+
+    group('polygon sampling', () {
+      // A circle in a small SVG, so that it is scaled up a lot.
+      const circle = [
+        (
+          'M16 0A16 16 0 1 1 16 32A16 16 0 1 1 16 0Z',
+          'fill="#ff0000"',
+        ),
+      ];
+
+      test('is in the units of the component, not of the SVG', () {
+        final small = _componentOf(circle, size: Vector2.all(32));
+        final large = _componentOf(circle, size: Vector2.all(320));
+        // The same shape needs more vertices to be followed as closely when
+        // it is ten times larger.
+        expect(_vertices(large), greaterThan(_vertices(small)));
+      });
+
+      test('can be coarser', () {
+        final fine = _componentOf(circle, size: Vector2.all(320));
+        final coarse = _componentOf(
+          circle,
+          size: Vector2.all(320),
+          sampling: 40,
+        );
+        expect(_vertices(coarse), lessThan(_vertices(fine)));
+      });
     });
 
     test('with a single hitbox, has one hitbox for all the paths', () {

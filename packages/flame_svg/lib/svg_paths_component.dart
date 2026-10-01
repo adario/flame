@@ -26,6 +26,8 @@ class SvgPathsComponent extends PositionComponent {
     this.hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
+    double sampling = 1.0,
+    double? tolerance,
     Vector2? size,
     super.position,
     super.scale,
@@ -42,6 +44,8 @@ class SvgPathsComponent extends PositionComponent {
              hitboxes: hitboxes,
              renderHitboxes: renderHitboxes,
              filter: filter,
+             sampling: sampling,
+             tolerance: tolerance,
            ),
            if (hitboxes == SvgHitboxes.single)
              createSvgPathsHitbox(
@@ -49,6 +53,8 @@ class SvgPathsComponent extends PositionComponent {
                size,
                renderHitboxes: renderHitboxes,
                filter: filter,
+               sampling: sampling,
+               tolerance: tolerance,
              ),
          ],
        );
@@ -61,6 +67,8 @@ class SvgPathsComponent extends PositionComponent {
     SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
+    double sampling = 1.0,
+    double? tolerance,
     Vector2? position,
     Vector2? size,
     Vector2? scale,
@@ -77,6 +85,8 @@ class SvgPathsComponent extends PositionComponent {
       hitboxes: hitboxes,
       renderHitboxes: renderHitboxes,
       filter: filter,
+      sampling: sampling,
+      tolerance: tolerance,
       position: position,
       size: size,
       scale: scale,
@@ -127,14 +137,24 @@ class SvgPathsComponent extends PositionComponent {
   /// the component rotates and scales around.
   ///
   /// With [SvgHitboxes.perPath] each of the components gets a [PathHitbox].
+  ///
+  /// The [sampling] and [tolerance] of the polygons, see [PathComponent.new],
+  /// are in the units of the [size], and not in those of the SVG file.
   static List<PathComponent> createPathComponents(
     SvgPaths svg,
     Vector2? size, {
     SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
+    double sampling = 1.0,
+    double? tolerance,
   }) {
     final (:full, :fit, :offset) = _layout(svg, size);
+    final (:pathSampling, :pathTolerance) = _toPathUnits(
+      sampling,
+      tolerance,
+      fit,
+    );
     final paths = <PathComponent>[];
     final length = svg.length;
     for (var svgIndex = 0; svgIndex < length; ++svgIndex) {
@@ -159,7 +179,12 @@ class SvgPathsComponent extends PositionComponent {
       final closedPath = _hitboxPath(path, vectorPaint);
       PathHitbox? hitbox;
       if (hitboxes == SvgHitboxes.perPath) {
-        hitbox = PathHitbox(path: closedPath, filter: filter ?? true);
+        hitbox = PathHitbox(
+          path: closedPath,
+          sampling: pathSampling,
+          tolerance: pathTolerance,
+          filter: filter ?? true,
+        );
         if (renderHitboxes ?? false) {
           hitbox
             ..renderShape = true
@@ -173,6 +198,8 @@ class SvgPathsComponent extends PositionComponent {
           scale: Vector2.all(fit),
           paint: paint ?? _pathStroke,
           paintLayers: vectorPaint?.paintLayers,
+          sampling: pathSampling,
+          tolerance: pathTolerance,
           filter: filter ?? true,
           children: [?hitbox],
         ),
@@ -182,14 +209,22 @@ class SvgPathsComponent extends PositionComponent {
   }
 
   /// Creates a single [SvgPathsHitbox] for all the paths in the [svg], placed
-  /// like the components from [createPathComponents].
+  /// like the components from [createPathComponents], which also describes
+  /// the [sampling] and [tolerance].
   static SvgPathsHitbox createSvgPathsHitbox(
     SvgPaths svg,
     Vector2? size, {
     bool? renderHitboxes,
     bool? filter,
+    double sampling = 1.0,
+    double? tolerance,
   }) {
     final (:full, :fit, :offset) = _layout(svg, size);
+    final (:pathSampling, :pathTolerance) = _toPathUnits(
+      sampling,
+      tolerance,
+      fit,
+    );
     final combined = Path();
     for (var svgIndex = 0; svgIndex < svg.length; ++svgIndex) {
       combined.addPath(
@@ -199,6 +234,8 @@ class SvgPathsComponent extends PositionComponent {
     }
     final hitbox = SvgPathsHitbox(
       path: combined,
+      sampling: pathSampling,
+      tolerance: pathTolerance,
       filter: filter ?? true,
       position:
           (combined.getBounds().topLeft - full.topLeft).toVector2() * fit +
@@ -210,6 +247,19 @@ class SvgPathsComponent extends PositionComponent {
         ..paint = _whiteStroke;
     }
     return hitbox;
+  }
+
+  /// The [sampling] and [tolerance] in the units of the SVG paths, given the
+  /// ones in the units of the component, which are [fit] times larger.
+  static ({double pathSampling, double? pathTolerance}) _toPathUnits(
+    double sampling,
+    double? tolerance,
+    double fit,
+  ) {
+    return (
+      pathSampling: sampling / fit,
+      pathTolerance: tolerance == null ? null : tolerance / fit,
+    );
   }
 
   /// The [path] to make hitboxes from, which has its open contours closed if
