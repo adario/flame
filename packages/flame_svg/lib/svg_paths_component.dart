@@ -7,11 +7,23 @@ import 'package:flame/extensions.dart';
 import 'package:flame/palette.dart' show BasicPalette;
 import 'package:flame_svg/flame_svg.dart';
 
+/// How an [SvgPathsComponent] creates its hitboxes.
+enum SvgHitboxes {
+  /// A single [SvgPathsHitbox] for the whole SVG file, which is a child of
+  /// the [SvgPathsComponent]. The paths that overlap or lie inside of each
+  /// other count as a single solid, including for rays.
+  single,
+
+  /// A [PathHitbox] for each path, which is a child of its [PathComponent].
+  perPath,
+}
+
 /// A position component representing a whole SVG file.
 class SvgPathsComponent extends PositionComponent {
-  /// Create from the given [svg].
+  /// Create from the given [svg], with the given kind of [hitboxes].
   SvgPathsComponent(
     this.svg, {
+    this.hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
     Vector2? size,
@@ -23,12 +35,22 @@ class SvgPathsComponent extends PositionComponent {
     super.key,
   }) : super(
          size: size ?? svg.bounds.size.toVector2(),
-         children: createPathComponents(
-           svg,
-           size,
-           renderHitboxes: renderHitboxes,
-           filter: filter,
-         ),
+         children: [
+           ...createPathComponents(
+             svg,
+             size,
+             hitboxes: hitboxes,
+             renderHitboxes: renderHitboxes,
+             filter: filter,
+           ),
+           if (hitboxes == SvgHitboxes.single)
+             createSvgPathsHitbox(
+               svg,
+               size,
+               renderHitboxes: renderHitboxes,
+               filter: filter,
+             ),
+         ],
        );
 
   /// Load an [SvgPaths] object from the given [svgName], and create
@@ -36,6 +58,7 @@ class SvgPathsComponent extends PositionComponent {
   static Future<SvgPathsComponent> load(
     String svgName, {
     String? assetsPath,
+    SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
     Vector2? position,
@@ -51,6 +74,7 @@ class SvgPathsComponent extends PositionComponent {
     final svg = await SvgPaths.fromFile(svgPathName);
     return SvgPathsComponent(
       svg,
+      hitboxes: hitboxes,
       renderHitboxes: renderHitboxes,
       filter: filter,
       position: position,
@@ -66,6 +90,9 @@ class SvgPathsComponent extends PositionComponent {
   /// The SVG file.
   final SvgPaths svg;
 
+  /// How the hitboxes of the component are created.
+  final SvgHitboxes hitboxes;
+
   // Temporary.
   static final _whiteStroke = Paint()
     ..color = const Color(0xffffffff)
@@ -79,23 +106,35 @@ class SvgPathsComponent extends PositionComponent {
     ..strokeCap = .round
     ..strokeJoin = .bevel;
 
+  /// The scale that fits the [svg] within the [size] while keeping the aspect
+  /// ratio, and the offset that centers it within the [size].
+  static ({Rect full, double fit, Vector2 offset}) _layout(
+    SvgPaths svg,
+    Vector2? size,
+  ) {
+    final full = svg.bounds;
+    final fullSize = full.size.toVector2();
+    final target = size ?? fullSize;
+    final fit = min(target.x / fullSize.x, target.y / fullSize.y);
+    return (full: full, fit: fit, offset: (target - fullSize * fit) / 2);
+  }
+
   /// Creates a [PathComponent] for each path in the [svg].
   ///
   /// The paths are scaled to fit within the [size] of the component while
   /// keeping the aspect ratio, and are centered within it. This way the
   /// center of the component is the center of the SVG contents, which is what
   /// the component rotates and scales around.
+  ///
+  /// With [SvgHitboxes.perPath] each of the components gets a [PathHitbox].
   static List<PathComponent> createPathComponents(
     SvgPaths svg,
     Vector2? size, {
+    SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
   }) {
-    final full = svg.bounds;
-    final fullSize = full.size.toVector2();
-    final target = size ?? fullSize;
-    final fit = min(target.x / fullSize.x, target.y / fullSize.y);
-    final offset = (target - fullSize * fit) / 2;
+    final (:full, :fit, :offset) = _layout(svg, size);
     final paths = <PathComponent>[];
     final length = svg.length;
     for (var svgIndex = 0; svgIndex < length; ++svgIndex) {
@@ -117,13 +156,15 @@ class SvgPathsComponent extends PositionComponent {
       // them, the filled areas of open contours would be missing from the
       // hitbox. The rendering of the component only changes for a path that
       // is both filled and stroked, so that one keeps its original path.
-      final isFilled = vectorPaint?.isFilled ?? false;
-      final closedPath = isFilled ? _closeContours(path) : path;
-      final hitbox = PathHitbox(path: closedPath, filter: filter ?? true);
-      if (renderHitboxes ?? false) {
-        hitbox
-          ..renderShape = true
-          ..paint = _whiteStroke;
+      final closedPath = _hitboxPath(path, vectorPaint);
+      PathHitbox? hitbox;
+      if (hitboxes == SvgHitboxes.perPath) {
+        hitbox = PathHitbox(path: closedPath, filter: filter ?? true);
+        if (renderHitboxes ?? false) {
+          hitbox
+            ..renderShape = true
+            ..paint = _whiteStroke;
+        }
       }
       paths.add(
         PathComponent(
@@ -133,11 +174,48 @@ class SvgPathsComponent extends PositionComponent {
           paint: paint ?? _pathStroke,
           paintLayers: vectorPaint?.paintLayers,
           filter: filter ?? true,
-          children: [hitbox],
+          children: [?hitbox],
         ),
       );
     }
     return paths;
+  }
+
+  /// Creates a single [SvgPathsHitbox] for all the paths in the [svg], placed
+  /// like the components from [createPathComponents].
+  static SvgPathsHitbox createSvgPathsHitbox(
+    SvgPaths svg,
+    Vector2? size, {
+    bool? renderHitboxes,
+    bool? filter,
+  }) {
+    final (:full, :fit, :offset) = _layout(svg, size);
+    final combined = Path();
+    for (var svgIndex = 0; svgIndex < svg.length; ++svgIndex) {
+      combined.addPath(
+        _hitboxPath(svg.pathAt(svgIndex)!.path, svg.paintAt(svgIndex)),
+        Offset.zero,
+      );
+    }
+    final hitbox = SvgPathsHitbox(
+      path: combined,
+      filter: filter ?? true,
+      position:
+          (combined.getBounds().topLeft - full.topLeft).toVector2() * fit +
+          offset,
+    )..scale.setValues(fit, fit);
+    if (renderHitboxes ?? false) {
+      hitbox
+        ..renderShape = true
+        ..paint = _whiteStroke;
+    }
+    return hitbox;
+  }
+
+  /// The [path] to make hitboxes from, which has its open contours closed if
+  /// it is filled, like filling does implicitly.
+  static Path _hitboxPath(Path path, VectorPaint? paint) {
+    return (paint?.isFilled ?? false) ? _closeContours(path) : path;
   }
 
   /// Returns the [path] with all of its contours closed, or the [path] itself
