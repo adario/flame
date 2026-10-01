@@ -100,9 +100,9 @@ class SvgPathsComponent extends PositionComponent {
     final length = svg.length;
     for (var svgIndex = 0; svgIndex < length; ++svgIndex) {
       final vectorPath = svg.pathAt(svgIndex);
-      final vectorPaints = svg.paintAt(svgIndex);
+      final vectorPaint = svg.paintAt(svgIndex);
       assert(
-        vectorPath != null && vectorPaints != null,
+        vectorPath != null && vectorPaint != null,
         'Invalid path or paints',
       );
       final path = vectorPath!.path;
@@ -110,7 +110,7 @@ class SvgPathsComponent extends PositionComponent {
       // position within the SVG.
       final position =
           (path.getBounds().topLeft - full.topLeft).toVector2() * fit + offset;
-      final paint = vectorPaints!.paint;
+      final paint = vectorPaint?.paint;
       final hitbox = PathHitbox(path: path, filter: filter ?? true);
       if (renderHitboxes ?? false) {
         hitbox
@@ -123,7 +123,7 @@ class SvgPathsComponent extends PositionComponent {
           position: position,
           scale: Vector2.all(fit),
           paint: paint ?? _pathStroke,
-          paintLayers: vectorPaints.paintLayers,
+          paintLayers: vectorPaint?.paintLayers,
           filter: filter ?? true,
           children: [hitbox],
         ),

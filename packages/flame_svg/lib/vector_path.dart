@@ -15,30 +15,36 @@ class VectorPath {
     this.pathId,
     this.description,
   }) {
-    _prepare();
-  }
-
-  void _prepare() {
     if (paint.isFilled) {
-      _analyze();
+      _processFilled();
     } else if (paint.isStroked) {
-      _strokePath = path;
+      _processStroked();
     } else {
       assert(
         paint.isFilled || paint.isStroked,
         'VectorPath must have at least a stroke or a fill.',
       );
+      throw ArgumentError(
+        'VectorPath must have at least a stroke or a fill.',
+      );
     }
   }
 
-  void _analyze() {
-    // Analyze the path to determine which open/closed contours it contains.
+  void _processStroked() {
+    // Stroked paths are simpler: we just use the original path as the stroke.
+    _strokePath = path;
+    description?.writeln('VectorPath $pathId: stroked path');
+  }
+
+  void _processFilled() {
+    // Analyze filled path to determine which open/closed contours it contains.
     final contours = path.contours;
     final totalLength = contours.contoursLength;
-    debugPrint(
+    description?.writeln(
       'VectorPath $pathId: #${contours.length} contours, length: $totalLength',
     );
     for (final metric in contours) {
+      // Extract the contour path, and add it to the open or closed list.
       final p = metric.extractPath(0, metric.length);
       if (metric.isClosed) {
         _closed.add(p);
@@ -47,28 +53,23 @@ class VectorPath {
       }
     }
 
-    ui.Path? stroke;
-    ui.Path? fill;
-    if (_open.isNotEmpty) {
-      // Create a path for the open contours.
-      stroke = _addOpen();
-    }
-
+    // Now we process the open/closed contours, creating stroked/filled paths:
+    // sometimes the paint style we receive from the vector graphics compiler
+    // is not consistent with the actual path.
+    var stroke = _open.isNotEmpty ? _addOpen() : null;
+    var fill = _closed.isNotEmpty ? _addClosed() : null;
     if (_closed.isNotEmpty) {
-      // Create a path for the closed contours.
-      fill = _addClosed();
-
       // If we have both open and closed contours with corresponding
       // single contours, merge them accordingly.
       if (stroke != null) {
         if (_open.length == 1) {
-          fill.addPath(stroke, .zero);
+          fill!.addPath(stroke, .zero);
         } else if (_closed.length == 1) {
-          stroke.addPath(fill, .zero);
+          stroke.addPath(fill!, .zero);
         }
       }
     } else {
-      // No closed contours, but we have open contours. If the paints
+      // No closed contours: if we have open contours and the paints
       // are not stroked, we keep only the fill path.
       if (!paint.isStroked && _open.isNotEmpty) {
         fill = stroke;
@@ -83,6 +84,7 @@ class VectorPath {
     );
   }
 
+  // Create a path that merges all open contours.
   ui.Path _addOpen() {
     final result = ui.Path();
     result.fillType = path.fillType;
@@ -92,6 +94,7 @@ class VectorPath {
     return result;
   }
 
+  // Create a path that merges all closed contours.
   ui.Path _addClosed() {
     final result = ui.Path();
     result.fillType = path.fillType;
