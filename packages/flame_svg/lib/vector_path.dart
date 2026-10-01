@@ -101,18 +101,6 @@ class VectorPath {
     return result;
   }
 
-  /// Render both fill and stroke paths on the given [canvas],
-  /// with an optional [overridePaint].
-  void render(ui.Canvas canvas, VectorPaint? overridePaint) {
-    final paint = overridePaint ?? this.paint;
-    if (_fillPath != null && paint.fill != null) {
-      canvas.drawPath(_fillPath, paint.fill!);
-    }
-    if (_strokePath != null && paint.stroke != null) {
-      canvas.drawPath(_strokePath, paint.stroke!);
-    }
-  }
-
   /// The default paint.
   final VectorPaint paint;
 
