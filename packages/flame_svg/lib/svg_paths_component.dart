@@ -23,14 +23,12 @@ class SvgPathsComponent extends PositionComponent {
     super.key,
   }) : super(
          size: size ?? svg.bounds.size.toVector2(),
-         children: [
-           createContent(
-             svg,
-             size,
-             renderHitboxes: renderHitboxes,
-             filter: filter,
-           ),
-         ],
+         children: createPathComponents(
+           svg,
+           size,
+           renderHitboxes: renderHitboxes,
+           filter: filter,
+         ),
        );
 
   /// Load an [SvgPaths] object from the given [svgName], and create
@@ -68,35 +66,6 @@ class SvgPathsComponent extends PositionComponent {
   /// The SVG file.
   final SvgPaths svg;
 
-  /// Creates the content of the component: a container with the size of the
-  /// bounds of the whole SVG, centered and scaled to fit within the [size] of
-  /// the component while keeping the aspect ratio. This keeps the [size] of
-  /// the component as requested, and rotates and scales it around the center
-  /// of the SVG contents.
-  static PositionComponent createContent(
-    SvgPaths svg,
-    Vector2? size, {
-    bool? renderHitboxes,
-    bool? filter,
-  }) {
-    final full = svg.bounds;
-    final fullSize = full.size.toVector2();
-    final target = size ?? fullSize;
-    final fit = min(target.x / fullSize.x, target.y / fullSize.y);
-    return PositionComponent(
-      size: fullSize,
-      position: target / 2,
-      anchor: Anchor.center,
-      scale: Vector2.all(fit),
-      children: createPathComponents(
-        svg,
-        full,
-        renderHitboxes: renderHitboxes,
-        filter: filter,
-      ),
-    );
-  }
-
   // Temporary.
   static final _whiteStroke = Paint()
     ..color = const Color(0xffffffff)
@@ -110,14 +79,23 @@ class SvgPathsComponent extends PositionComponent {
     ..strokeCap = .round
     ..strokeJoin = .bevel;
 
-  /// Creates a [PathComponent] for each path in the [svg], positioned
-  /// relative to the top left corner of the [full] bounds of the SVG.
+  /// Creates a [PathComponent] for each path in the [svg].
+  ///
+  /// The paths are scaled to fit within the [size] of the component while
+  /// keeping the aspect ratio, and are centered within it. This way the
+  /// center of the component is the center of the SVG contents, which is what
+  /// the component rotates and scales around.
   static List<PathComponent> createPathComponents(
     SvgPaths svg,
-    Rect full, {
+    Vector2? size, {
     bool? renderHitboxes,
     bool? filter,
   }) {
+    final full = svg.bounds;
+    final fullSize = full.size.toVector2();
+    final target = size ?? fullSize;
+    final fit = min(target.x / fullSize.x, target.y / fullSize.y);
+    final offset = (target - fullSize * fit) / 2;
     final paths = <PathComponent>[];
     final length = svg.length;
     for (var svgIndex = 0; svgIndex < length; ++svgIndex) {
@@ -130,7 +108,8 @@ class SvgPathsComponent extends PositionComponent {
       final path = vectorPath!.path;
       // A PathComponent moves its path to the origin, so we restore its
       // position within the SVG.
-      final position = path.getBounds().topLeft - full.topLeft;
+      final position =
+          (path.getBounds().topLeft - full.topLeft).toVector2() * fit + offset;
       final paint = vectorPaints!.paint;
       final hitbox = PathHitbox(path: path, filter: filter ?? true);
       if (renderHitboxes ?? false) {
@@ -141,7 +120,8 @@ class SvgPathsComponent extends PositionComponent {
       paths.add(
         PathComponent(
           path: path,
-          position: position.toVector2(),
+          position: position,
+          scale: Vector2.all(fit),
           paint: paint ?? _pathStroke,
           paintLayers: vectorPaints.paintLayers,
           filter: filter ?? true,
