@@ -48,6 +48,12 @@ class SvgPathsHitbox extends PathHitbox {
     Ray2 ray, {
     RaycastResult<ShapeHitbox>? out,
   }) {
+    // A ray that misses the bounding box can not touch any polygon, and this
+    // is much cheaper than walking all of their edges.
+    if (!ray.intersectsWithAabb2(aabb)) {
+      out?.reset();
+      return null;
+    }
     final polygons = globalPolygons();
     final originX = ray.origin.x;
     final originY = ray.origin.y;

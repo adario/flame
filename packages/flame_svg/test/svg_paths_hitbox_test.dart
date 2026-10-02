@@ -90,6 +90,24 @@ void main() {
       expect(hitbox.rayIntersection(_ray(-20, 200, 1, 0)), isNull);
     });
 
+    test('a ray that misses the bounding box has no result', () {
+      final hitbox = _hitbox(overlapping);
+      final out = RaycastResult<ShapeHitbox>();
+      // Passes above, below and beside the box, and points away from it.
+      expect(hitbox.rayIntersection(_ray(-20, -20, 1, 0), out: out), isNull);
+      expect(out.isActive, isFalse);
+      expect(hitbox.rayIntersection(_ray(75, 200, 1, 0)), isNull);
+      expect(hitbox.rayIntersection(_ray(200, 75, 0, 1)), isNull);
+      expect(hitbox.rayIntersection(_ray(75, -20, 0, -1)), isNull);
+    });
+
+    test('a ray that starts inside the bounding box is still tested', () {
+      // (10, 140) is in the bounding box, but outside of both squares.
+      final hitbox = _hitbox(overlapping);
+      expect(hitbox.rayIntersection(_ray(10, 140, 1, 0)), isNotNull);
+      expect(hitbox.rayIntersection(_ray(10, 140, -1, 0)), isNull);
+    });
+
     test('populates and returns the given result', () {
       final out = RaycastResult<ShapeHitbox>();
       final hitbox = _hitbox(overlapping);
