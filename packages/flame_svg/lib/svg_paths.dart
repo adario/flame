@@ -13,12 +13,12 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 /// A container for SVG files, represented as a collection of [VectorPath]
 /// and associated [VectorPaint] objects.
 @immutable
-class SvgPaths {
+class SvgPaths(String svg, {this.merge = true}) {
   /// Create from an [svg] string, and perform an optional [merge]
   /// of consecutive SVG paths sharing the same paint.
   ///
   /// Throws if the [svg] can not be parsed.
-  SvgPaths(String svg, {this.merge = true}) {
+  this {
     _importSvg(svg);
   }
 
@@ -182,14 +182,13 @@ class SvgPaths {
       }
 
       // Convert the paint and the path.
-      final paint =
-          paints[paintId] ??= _instructions.paints[paintId].toVectorPaint();
-      final path =
-          paths[pathId] ??= _instructions.paths[pathId].toVectorPath(
-            paint,
-            pathId: pathId,
-            description: StringBuffer(),
-          );
+      final paint = paints[paintId] ??= _instructions.paints[paintId]
+          .toVectorPaint();
+      final path = paths[pathId] ??= _instructions.paths[pathId].toVectorPath(
+        paint,
+        pathId: pathId,
+        description: StringBuffer(),
+      );
 
       // Paths with both a fill and a stroke are never merged, since the fill
       // and stroke of a merged path are painted after all of its paths, which

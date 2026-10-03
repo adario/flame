@@ -9,7 +9,7 @@ import 'package:flame_svg/flame_svg.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 
 /// How an [SvgPathsComponent] creates its hitboxes.
-enum SvgHitboxes {
+enum SvgHitboxes() {
   /// A single [SvgPathsHitbox] for the whole SVG file, which is a child of
   /// the [SvgPathsComponent]. The paths that overlap or lie inside of each
   /// other count as a single solid, including for rays.
@@ -20,45 +20,46 @@ enum SvgHitboxes {
 }
 
 /// A position component representing a whole SVG file.
-class SvgPathsComponent extends PositionComponent {
+class SvgPathsComponent(
+  this.svg, {
+  this.hitboxes = SvgHitboxes.single,
+  bool? renderHitboxes,
+  bool? filter,
+  double sampling = 1.0,
+  double? tolerance,
+  Vector2? size,
+  super.position,
+  super.scale,
+  super.angle,
+  super.anchor,
+  super.priority,
+  super.key,
+}) extends PositionComponent {
   /// Create from the given [svg], with the given kind of [hitboxes].
-  SvgPathsComponent(
-    this.svg, {
-    this.hitboxes = SvgHitboxes.single,
-    bool? renderHitboxes,
-    bool? filter,
-    double sampling = 1.0,
-    double? tolerance,
-    Vector2? size,
-    super.position,
-    super.scale,
-    super.angle,
-    super.anchor,
-    super.priority,
-    super.key,
-  }) : super(
-         size: size ?? svg.bounds.size.toVector2(),
-         children: [
-           if (hitboxes == SvgHitboxes.perPath)
-             ...createPathComponents(
-               svg,
-               size,
-               renderHitboxes: renderHitboxes,
-               filter: filter,
-               sampling: sampling,
-               tolerance: tolerance,
-             ),
-           if (hitboxes == SvgHitboxes.single && svg.length > 0)
-             createSvgPathsHitbox(
-               svg,
-               size,
-               renderHitboxes: renderHitboxes,
-               filter: filter,
-               sampling: sampling,
-               tolerance: tolerance,
-             ),
-         ],
-       );
+  this
+    : super(
+        size: size ?? svg.bounds.size.toVector2(),
+        children: [
+          if (hitboxes == SvgHitboxes.perPath)
+            ...createPathComponents(
+              svg,
+              size,
+              renderHitboxes: renderHitboxes,
+              filter: filter,
+              sampling: sampling,
+              tolerance: tolerance,
+            ),
+          if (hitboxes == SvgHitboxes.single && svg.length > 0)
+            createSvgPathsHitbox(
+              svg,
+              size,
+              renderHitboxes: renderHitboxes,
+              filter: filter,
+              sampling: sampling,
+              tolerance: tolerance,
+            ),
+        ],
+      );
 
   /// Load an [SvgPaths] object from the given [svgName], and create
   /// an [SvgPathsComponent] from it.

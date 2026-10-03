@@ -7,14 +7,14 @@ import 'package:flutter/foundation.dart';
 /// A path originating from the vector graphics compiler, and represented by
 /// a standard [ui.Path] and a [VectorPaint] object.
 @immutable
-class VectorPath {
+class VectorPath(
+  this.path,
+  this.paint, {
+  this.pathId,
+  this.description,
+}) {
   /// Create from the given [path] and [paint].
-  VectorPath(
-    this.path,
-    this.paint, {
-    this.pathId,
-    this.description,
-  }) {
+  this {
     if (paint.isFilled) {
       _processFilled();
     } else if (paint.isStroked) {

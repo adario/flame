@@ -17,20 +17,20 @@ import 'package:flame/geometry.dart';
 /// enters the union of the polygons, or leaves it when it starts inside. The
 /// edges between polygons that are inside of the union are ignored. Like in
 /// [PathHitbox], polygons are solid, so the holes in them count as inside.
-class SvgPathsHitbox extends PathHitbox {
+class SvgPathsHitbox({
+  required super.path,
+  super.sampling,
+  super.tolerance,
+  super.filter,
+  super.position,
+  super.angle,
+  super.anchor,
+  super.isSolid,
+  super.collisionType,
+}) extends PathHitbox {
   /// With this constructor you create a [SvgPathsHitbox] from all the closed
   /// contours of the [path]. See [PathHitbox.new] for the parameters.
-  SvgPathsHitbox({
-    required super.path,
-    super.sampling,
-    super.tolerance,
-    super.filter,
-    super.position,
-    super.angle,
-    super.anchor,
-    super.isSolid,
-    super.collisionType,
-  });
+  this;
 
   final _normal = Vector2.zero();
   final _crossings = <_Crossing>[];
@@ -183,9 +183,7 @@ class SvgPathsHitbox extends PathHitbox {
 }
 
 /// The crossing of a ray with an edge of a polygon.
-class _Crossing {
-  _Crossing(this.distance, this.polygon, this.from, this.to);
-
+class _Crossing(this.distance, this.polygon, this.from, this.to) {
   final double distance;
   final int polygon;
   final Vector2 from;

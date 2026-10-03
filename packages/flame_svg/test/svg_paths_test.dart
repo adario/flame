@@ -145,7 +145,7 @@ void main() {
           final recorder = PictureRecorder();
           svg.render(Canvas(recorder), Vector2.all(20), area: area);
           final image = await recorder.endRecording().toImage(20, 20);
-          return image.toByteData();
+          return await image.toByteData();
         }))!;
       }
 

@@ -223,7 +223,7 @@ void main() {
           final recorder = ui.PictureRecorder();
           component.renderTree(ui.Canvas(recorder));
           final image = await recorder.endRecording().toImage(100, 100);
-          return image.toByteData();
+          return await image.toByteData();
         }))!;
       }
 
