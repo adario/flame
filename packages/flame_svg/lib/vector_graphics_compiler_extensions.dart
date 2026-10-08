@@ -101,6 +101,73 @@ extension StrokeJoinConverter on StrokeJoin {
   }
 }
 
+/// [TileMode] mapping from the vector graphics compiler.
+extension TileModeConverter on TileMode {
+  /// Converts a [TileMode] to a [ui.TileMode].
+  ui.TileMode toUiTileMode() {
+    switch (this) {
+      case .clamp:
+        return .clamp;
+      case .repeated:
+        return .repeated;
+      case .mirror:
+        return .mirror;
+      case .decal:
+        return .decal;
+    }
+  }
+}
+
+/// [Gradient] conversion from the vector graphics compiler.
+extension GradientConverter on Gradient {
+  /// Possibly converts a [Gradient] to a [ui.Gradient].
+  ///
+  /// The gradient must already have its bounds applied (see
+  /// [Gradient.applyBounds]), so that its [Gradient.unitMode] is
+  /// [GradientUnitMode.transformed]: this is always the case for gradients
+  /// coming from parsed [VectorInstructions].
+  ///
+  /// Returns `null` if the gradient has no [Gradient.colors].
+  ui.Gradient? toUiGradient() {
+    assert(
+      unitMode == null || unitMode == GradientUnitMode.transformed,
+      'Gradient bounds must be applied before conversion',
+    );
+    final c = colors;
+    if (c == null) {
+      return null;
+    }
+    final uiColors = [for (final color in c) ui.Color(color.value)];
+    final uiTileMode = tileMode?.toUiTileMode() ?? ui.TileMode.clamp;
+    final matrix4 = transform?.toMatrix4();
+    final g = this;
+    if (g is LinearGradient) {
+      return ui.Gradient.linear(
+        ui.Offset(g.from.x, g.from.y),
+        ui.Offset(g.to.x, g.to.y),
+        uiColors,
+        offsets,
+        uiTileMode,
+        matrix4,
+      );
+    } else if (g is RadialGradient) {
+      final f = g.focalPoint;
+      // The vector graphics compiler has no focal radius, so we keep the
+      // default of zero.
+      return ui.Gradient.radial(
+        ui.Offset(g.center.x, g.center.y),
+        g.radius,
+        uiColors,
+        offsets,
+        uiTileMode,
+        matrix4,
+        f == null ? null : ui.Offset(f.x, f.y),
+      );
+    }
+    return null;
+  }
+}
+
 /// Paint conversion from the vector graphics compiler.
 extension PaintConverter on Paint {
   /// Converts a [Paint] to a [VectorPaint].
@@ -119,6 +186,7 @@ extension PaintConverter on Paint {
     p.blendMode = blendMode.toUiBlendMode();
     p.strokeWidth = s.width ?? p.strokeWidth;
     p.color = ui.Color(s.color.value);
+    p.shader = s.shader?.toUiGradient();
     // Without a miter limit we keep the default of the engine: reading it
     // back from the paint and assigning it gives a different value.
     final m = s.miterLimit;
@@ -146,6 +214,7 @@ extension PaintConverter on Paint {
     p.style = .fill;
     p.blendMode = blendMode.toUiBlendMode();
     p.color = ui.Color(f.color.value);
+    p.shader = f.shader?.toUiGradient();
     return p;
   }
 }
