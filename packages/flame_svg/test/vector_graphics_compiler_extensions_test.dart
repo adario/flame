@@ -41,8 +41,146 @@ void main() {
     });
   });
 
+  group('TileModeConverter', () {
+    test('converts every tile mode to the one with the same name', () {
+      for (final mode in vgc.TileMode.values) {
+        expect(
+          mode.toUiTileMode(),
+          ui.TileMode.values.byName(mode.name),
+          reason: mode.name,
+        );
+      }
+    });
+  });
+
+  group('GradientConverter', () {
+    const colors = [
+      vgc.Color.fromARGB(255, 255, 0, 0),
+      vgc.Color.fromARGB(255, 0, 0, 255),
+    ];
+    const offsets = [0.0, 1.0];
+
+    test('converts a linear gradient', () {
+      for (final tileMode in [null, ...vgc.TileMode.values]) {
+        for (final transform in [null, vgc.AffineMatrix.identity]) {
+          expect(
+            vgc.LinearGradient(
+              id: 'linear',
+              from: vgc.Point.zero,
+              to: const vgc.Point(10, 10),
+              colors: colors,
+              offsets: offsets,
+              tileMode: tileMode,
+              unitMode: vgc.GradientUnitMode.transformed,
+              transform: transform,
+            ).toUiGradient(),
+            isA<ui.Gradient>(),
+            reason: '$tileMode, $transform',
+          );
+        }
+      }
+    });
+
+    test('converts a radial gradient', () {
+      for (final focalPoint in [null, const vgc.Point(2, 3)]) {
+        for (final transform in [null, vgc.AffineMatrix.identity]) {
+          expect(
+            vgc.RadialGradient(
+              id: 'radial',
+              center: const vgc.Point(5, 5),
+              radius: 5,
+              colors: colors,
+              offsets: offsets,
+              tileMode: vgc.TileMode.mirror,
+              transform: transform,
+              focalPoint: focalPoint,
+              unitMode: vgc.GradientUnitMode.transformed,
+            ).toUiGradient(),
+            isA<ui.Gradient>(),
+            reason: '$focalPoint, $transform',
+          );
+        }
+      }
+    });
+
+    test('has no gradient without colors', () {
+      expect(
+        const vgc.LinearGradient(
+          id: 'linear',
+          from: vgc.Point.zero,
+          to: vgc.Point(10, 10),
+        ).toUiGradient(),
+        isNull,
+      );
+      expect(
+        const vgc.RadialGradient(
+          id: 'radial',
+          center: vgc.Point(5, 5),
+          radius: 5,
+        ).toUiGradient(),
+        isNull,
+      );
+    });
+
+    test('asserts that the bounds have been applied', () {
+      for (final unitMode in [
+        vgc.GradientUnitMode.objectBoundingBox,
+        vgc.GradientUnitMode.userSpaceOnUse,
+      ]) {
+        expect(
+          () => vgc.LinearGradient(
+            id: 'linear',
+            from: vgc.Point.zero,
+            to: const vgc.Point(10, 10),
+            colors: colors,
+            offsets: offsets,
+            unitMode: unitMode,
+          ).toUiGradient(),
+          throwsAssertionError,
+          reason: unitMode.name,
+        );
+      }
+    });
+  });
+
   group('PaintConverter', () {
     const color = vgc.Color.fromARGB(255, 10, 20, 30);
+    const gradient = vgc.LinearGradient(
+      id: 'linear',
+      from: vgc.Point.zero,
+      to: vgc.Point(10, 10),
+      colors: [color, color],
+      offsets: [0, 1],
+      unitMode: vgc.GradientUnitMode.transformed,
+    );
+
+    test('converts the shader of a fill', () {
+      expect(
+        const vgc.Paint(
+          fill: vgc.Fill(color: color, shader: gradient),
+        ).toFilledUiPaint()!.shader,
+        isA<ui.Gradient>(),
+      );
+      expect(
+        const vgc.Paint(fill: vgc.Fill(color: color)).toFilledUiPaint()!.shader,
+        isNull,
+      );
+    });
+
+    test('converts the shader of a stroke', () {
+      expect(
+        const vgc.Paint(
+          stroke: vgc.Stroke(color: color, width: 1, shader: gradient),
+        ).toStrokedUiPaint()!.shader,
+        isA<ui.Gradient>(),
+      );
+      expect(
+        const vgc.Paint(
+          stroke: vgc.Stroke(color: color, width: 1),
+        ).toStrokedUiPaint()!.shader,
+        isNull,
+      );
+    });
 
     test('converts a fill', () {
       final paint = const vgc.Paint(
