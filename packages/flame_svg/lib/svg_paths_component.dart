@@ -124,14 +124,12 @@ class SvgPathsComponent(
   /// How the hitboxes of the component are created.
   final SvgHitboxes hitboxes;
 
-  late final Rect _area = svg.bounds;
-
   /// With [SvgHitboxes.single] the paths are rendered by the component
   /// itself, since it has no [PathComponent]s.
   @override
   void render(Canvas canvas) {
     if (hitboxes == SvgHitboxes.single) {
-      svg.render(canvas, size, area: _area);
+      svg.render(canvas, size, area: svg.bounds);
     }
   }
 

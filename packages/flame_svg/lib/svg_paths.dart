@@ -77,7 +77,7 @@ class SvgPaths(String svg, {this.merge = true}) {
 
   /// The original bounds for the whole SVG file, computed as the union
   /// of all the vector graphics compiler paths.
-  ui.Rect get bounds => _computeBounds();
+  late final ui.Rect bounds = _computeBounds();
 
   /// Renders all paths on the [canvas], fitting the [area] of the SVG file
   /// into the dimensions in [size] while keeping the aspect ratio, and
@@ -163,7 +163,6 @@ class SvgPaths(String svg, {this.merge = true}) {
             merged,
             runPaint!,
             pathId: _paths.length,
-            description: StringBuffer(),
           ),
         );
       }
@@ -195,7 +194,7 @@ class SvgPaths(String svg, {this.merge = true}) {
       final paint = paints[paintId] ??= _instructions.paints[paintId]
           .toVectorPaint();
       final path = paths[(pathId, paintId)] ??= _instructions.paths[pathId]
-          .toVectorPath(paint, pathId: pathId, description: StringBuffer());
+          .toVectorPath(paint, pathId: pathId);
 
       // Paths with both a fill and a stroke are never merged, since the fill
       // and stroke of a merged path are painted after all of its paths, which
