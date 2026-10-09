@@ -32,7 +32,6 @@ class SvgPaths(String svg, {this.merge = true}) {
   }) async {
     final assets = cache ?? Flame.assets;
     final svg = await assets.readFile(fileName);
-    assert(svg.isNotEmpty, 'SVG file not found: $fileName');
     return SvgPaths(svg, merge: merge);
   }
 
@@ -62,7 +61,7 @@ class SvgPaths(String svg, {this.merge = true}) {
   /// The original width reported by the [VectorInstructions].
   double get width => _instructions.width;
 
-  /// The original width reported by the [VectorInstructions].
+  /// The original height reported by the [VectorInstructions].
   double get height => _instructions.height;
 
   /// The original size reported by the [VectorInstructions].

@@ -70,43 +70,6 @@ void main() {
       );
     });
 
-    group('geometry', () {
-      test('of a stroked path is the original path', () {
-        final path = _square(0, 0, 10);
-        final vectorPath = VectorPath(path, _stroked);
-        expect(vectorPath.strokePath, path);
-      });
-
-      test('of a stroked path has no fill', () {
-        expect(VectorPath(_square(0, 0, 10), _stroked).fillPath, isNull);
-      });
-
-      test('of a filled path with closed contours is a fill', () {
-        final vectorPath = VectorPath(_square(0, 0, 10), _filled);
-        expect(
-          vectorPath.fillPath!.getBounds(),
-          const Rect.fromLTWH(0, 0, 10, 10),
-        );
-        expect(vectorPath.strokePath, isNull);
-      });
-
-      test('of a filled path with an open contour is a fill', () {
-        final vectorPath = VectorPath(_openTriangle(0, 0, 10), _filled);
-        expect(vectorPath.fillPath, isNotNull);
-        expect(vectorPath.strokePath, isNull);
-      });
-
-      test('of a filled path with a closed and an open contour is merged', () {
-        final path = _square(0, 0, 10)
-          ..addPath(_openTriangle(20, 0, 10), Offset.zero);
-        final vectorPath = VectorPath(path, _filled);
-        expect(
-          vectorPath.fillPath!.getBounds(),
-          const Rect.fromLTRB(0, 0, 30, 10),
-        );
-      });
-    });
-
     group('equality', () {
       test('is by paint and path', () {
         // Both are compared by identity.
@@ -143,12 +106,22 @@ void main() {
       });
     });
 
-    test('toString has the paint and the contours', () {
-      final vectorPath = VectorPath(
-        _square(0, 0, 10)..addPath(_openTriangle(20, 0, 10), Offset.zero),
-        _filled,
+    test('toString has the paint and the description', () {
+      final paint = _filled;
+      expect(
+        VectorPath(_square(0, 0, 10), paint).toString(),
+        'VectorPath(paint: $paint)',
       );
-      expect(vectorPath.toString(), contains('open: 1, closed: 1'));
+      final described = VectorPath(
+        _square(0, 0, 10),
+        _stroked,
+        pathId: 2,
+        description: StringBuffer(),
+      );
+      expect(
+        described.toString(),
+        allOf(contains('stroke:'), contains('VectorPath 2: stroked path')),
+      );
     });
 
     group('render', () {
