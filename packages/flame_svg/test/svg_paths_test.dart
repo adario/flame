@@ -58,6 +58,34 @@ void main() {
       expect(svg.length, 2);
     });
 
+    test('keeps the strokes without a width', () {
+      final svg = SvgPaths(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> '
+        '<path d="M10 10L90 90" fill="none" stroke="#000000"/> '
+        '<path d="M10 90L90 10Z" fill="#ff0000" stroke="#000000"/> </svg>',
+      );
+      expect(svg.length, 2);
+      expect(svg.paintAt(0)!.isFilled, isFalse);
+      expect(svg.paintAt(0)!.stroke!.strokeWidth, 1);
+      expect(svg.paintAt(1)!.isFilled, isTrue);
+      expect(svg.paintAt(1)!.stroke!.strokeWidth, 1);
+    });
+
+    test('gives each path its own paint when they share the same data', () {
+      // The vector graphics compiler shares the paths with the same data.
+      const d = 'M0 0L50 0L50 50Z';
+      final svg = SvgPaths(
+        '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> '
+        '<path d="$d" fill="#ff0000"/> <path d="$d" fill="#0000ff"/> </svg>',
+      );
+      expect(svg.length, 2);
+      for (var i = 0; i < svg.length; i++) {
+        expect(svg.pathAt(i)!.paint, svg.paintAt(i), reason: '$i');
+      }
+      expect(svg.pathAt(0)!.paint.fill!.color.toARGB32(), 0xffff0000);
+      expect(svg.pathAt(1)!.paint.fill!.color.toARGB32(), 0xff0000ff);
+    });
+
     group('merge with overlapping paths', () {
       String svgOf(List<String> paths, [String style = '']) {
         final elements = [

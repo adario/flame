@@ -123,7 +123,10 @@ class SvgPaths(String svg, {this.merge = true}) {
     _instructions = parseWithoutOptimizers(svg);
 
     final paints = <int, VectorPaint>{};
-    final paths = <int, VectorPath>{};
+    // The same path can be drawn with different paints, since the vector
+    // graphics compiler shares the paths with the same data, so each
+    // [VectorPath] is cached by both its path and its paint.
+    final paths = <(int, int), VectorPath>{};
 
     // The run of consecutive paths that are going to be merged, which are
     // added to the result as soon as the run ends. Merging only consecutive
@@ -184,11 +187,8 @@ class SvgPaths(String svg, {this.merge = true}) {
       // Convert the paint and the path.
       final paint = paints[paintId] ??= _instructions.paints[paintId]
           .toVectorPaint();
-      final path = paths[pathId] ??= _instructions.paths[pathId].toVectorPath(
-        paint,
-        pathId: pathId,
-        description: StringBuffer(),
-      );
+      final path = paths[(pathId, paintId)] ??= _instructions.paths[pathId]
+          .toVectorPath(paint, pathId: pathId, description: StringBuffer());
 
       // Paths with both a fill and a stroke are never merged, since the fill
       // and stroke of a merged path are painted after all of its paths, which

@@ -176,15 +176,19 @@ extension PaintConverter on Paint {
   }
 
   /// Possibly converts a stroked [Paint] to a [ui.Paint].
+  ///
+  /// A stroke without a width has the SVG default width of 1, and a stroke
+  /// with a width of zero or less is not painted.
   ui.Paint? toStrokedUiPaint() {
     final s = stroke;
-    if (s == null || s.width == null || s.width! <= 0) {
+    final width = s?.width ?? 1;
+    if (s == null || width <= 0) {
       return null;
     }
     final p = ui.Paint();
     p.style = .stroke;
     p.blendMode = blendMode.toUiBlendMode();
-    p.strokeWidth = s.width ?? p.strokeWidth;
+    p.strokeWidth = width;
     p.color = ui.Color(s.color.value);
     p.shader = s.shader?.toUiGradient();
     // Without a miter limit we keep the default of the engine: reading it
