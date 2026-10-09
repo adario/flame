@@ -252,12 +252,16 @@ void main() {
       },
     );
 
-    test('has no stroked paint without a stroke with a width', () {
+    test('has the SVG default width for a stroke without a width', () {
+      final paint = const vgc.Paint(
+        stroke: vgc.Stroke(color: color),
+      ).toStrokedUiPaint();
+      expect(paint, isNotNull);
+      expect(paint!.strokeWidth, 1);
+    });
+
+    test('has no stroked paint without a stroke with a positive width', () {
       expect(const vgc.Paint().toStrokedUiPaint(), isNull);
-      expect(
-        const vgc.Paint(stroke: vgc.Stroke(color: color)).toStrokedUiPaint(),
-        isNull,
-      );
       expect(
         const vgc.Paint(
           stroke: vgc.Stroke(color: color, width: 0),

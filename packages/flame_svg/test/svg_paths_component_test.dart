@@ -1,10 +1,15 @@
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:flame/cache.dart';
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame_svg/flame_svg.dart';
+import 'package:flutter/services.dart' show AssetBundle;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockAssetBundle() extends Mock implements AssetBundle;
 
 SvgPathsComponent _componentOf(
   List<(String, String)> paths, {
@@ -62,6 +67,57 @@ void main() {
           SvgPathsComponent.assetPath('ship', 'assets/other/'),
           'assets/other/ship.svg',
         );
+      });
+    });
+
+    group('load', () {
+      // Two paths with the same paint, which are merged by default.
+      const svg =
+          '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> '
+          '<path d="M0 0L20 0L20 20Z" fill="#ff0000"/> '
+          '<path d="M60 60L80 60L80 80Z" fill="#ff0000"/> </svg>';
+
+      AssetsCache cacheOf(AssetBundle bundle) {
+        when(() => bundle.loadString(any())).thenAnswer((_) async => svg);
+        return AssetsCache(bundle: bundle);
+      }
+
+      test('reads the file in assets/svgs via the given cache', () async {
+        final bundle = _MockAssetBundle();
+        final component = await SvgPathsComponent.load(
+          'ship',
+          cache: cacheOf(bundle),
+        );
+        verify(() => bundle.loadString('assets/svgs/ship.svg')).called(1);
+        expect(component.svg.length, 1);
+        expect(component.hitboxes, SvgHitboxes.single);
+      });
+
+      test('reads the file in the given folder and package', () async {
+        final bundle = _MockAssetBundle();
+        await SvgPathsComponent.load(
+          'ship',
+          assetsPath: 'assets/other',
+          cache: cacheOf(bundle),
+          package: 'my_pkg',
+        );
+        verify(
+          () => bundle.loadString('packages/my_pkg/assets/other/ship.svg'),
+        ).called(1);
+      });
+
+      test('passes on the merge and the hitboxes', () async {
+        final component = await SvgPathsComponent.load(
+          'ship',
+          cache: cacheOf(_MockAssetBundle()),
+          merge: false,
+          hitboxes: SvgHitboxes.perPath,
+          size: Vector2.all(50),
+        );
+        expect(component.svg.length, 2);
+        expect(component.hitboxes, SvgHitboxes.perPath);
+        expect(component.children.whereType<PathComponent>().length, 2);
+        expect(component.size, Vector2.all(50));
       });
     });
 

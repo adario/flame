@@ -12,6 +12,10 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
 /// A container for SVG files, represented as a collection of [VectorPath]
 /// and associated [VectorPaint] objects.
+///
+/// Only the paths of the SVG file are imported: clipping, masks, group
+/// opacity, text, images and patterns are ignored, so an SVG file using them
+/// may look different than in other renderers.
 @immutable
 class SvgPaths(String svg, {this.merge = true}) {
   /// Create from an [svg] string, and perform an optional [merge]
@@ -25,14 +29,17 @@ class SvgPaths(String svg, {this.merge = true}) {
   /// Create an [SvgPaths] from a [fileName] in the `assets` folder,
   /// reachable via the [cache] (by default, [Flame.assets]), and
   /// optionally [merge] consecutive paths with identical paints.
+  ///
+  /// When a [package] is given, the [fileName] is resolved relative to the
+  /// assets of that package.
   static Future<SvgPaths> fromFile(
     String fileName, {
     AssetsCache? cache,
+    String? package,
     bool merge = true,
   }) async {
     final assets = cache ?? Flame.assets;
-    final svg = await assets.readFile(fileName);
-    assert(svg.isNotEmpty, 'SVG file not found: $fileName');
+    final svg = await assets.readFile(fileName, package: package);
     return SvgPaths(svg, merge: merge);
   }
 
@@ -62,7 +69,7 @@ class SvgPaths(String svg, {this.merge = true}) {
   /// The original width reported by the [VectorInstructions].
   double get width => _instructions.width;
 
-  /// The original width reported by the [VectorInstructions].
+  /// The original height reported by the [VectorInstructions].
   double get height => _instructions.height;
 
   /// The original size reported by the [VectorInstructions].
@@ -70,7 +77,7 @@ class SvgPaths(String svg, {this.merge = true}) {
 
   /// The original bounds for the whole SVG file, computed as the union
   /// of all the vector graphics compiler paths.
-  ui.Rect get bounds => _computeBounds();
+  late final ui.Rect bounds = _computeBounds();
 
   /// Renders all paths on the [canvas], fitting the [area] of the SVG file
   /// into the dimensions in [size] while keeping the aspect ratio, and
@@ -123,7 +130,10 @@ class SvgPaths(String svg, {this.merge = true}) {
     _instructions = parseWithoutOptimizers(svg);
 
     final paints = <int, VectorPaint>{};
-    final paths = <int, VectorPath>{};
+    // The same path can be drawn with different paints, since the vector
+    // graphics compiler shares the paths with the same data, so each
+    // [VectorPath] is cached by both its path and its paint.
+    final paths = <(int, int), VectorPath>{};
 
     // The run of consecutive paths that are going to be merged, which are
     // added to the result as soon as the run ends. Merging only consecutive
@@ -153,7 +163,6 @@ class SvgPaths(String svg, {this.merge = true}) {
             merged,
             runPaint!,
             pathId: _paths.length,
-            description: StringBuffer(),
           ),
         );
       }
@@ -167,8 +176,8 @@ class SvgPaths(String svg, {this.merge = true}) {
     // Walk all vector instructions, considering only path commands.
     for (final c in _instructions.commands) {
       if (c.type != .path) {
-        // Other commands, like clipping, separate the paths around them.
-        debugPrint('SVG skipping draw command = $c');
+        // Other commands, like clipping, are not supported, but they still
+        // separate the paths around them.
         endRun();
         continue;
       }
@@ -184,11 +193,8 @@ class SvgPaths(String svg, {this.merge = true}) {
       // Convert the paint and the path.
       final paint = paints[paintId] ??= _instructions.paints[paintId]
           .toVectorPaint();
-      final path = paths[pathId] ??= _instructions.paths[pathId].toVectorPath(
-        paint,
-        pathId: pathId,
-        description: StringBuffer(),
-      );
+      final path = paths[(pathId, paintId)] ??= _instructions.paths[pathId]
+          .toVectorPath(paint, pathId: pathId);
 
       // Paths with both a fill and a stroke are never merged, since the fill
       // and stroke of a merged path are painted after all of its paths, which
