@@ -12,6 +12,10 @@ import 'package:vector_graphics_compiler/vector_graphics_compiler.dart';
 
 /// A container for SVG files, represented as a collection of [VectorPath]
 /// and associated [VectorPaint] objects.
+///
+/// Only the paths of the SVG file are imported: clipping, masks, group
+/// opacity, text, images and patterns are ignored, so an SVG file using them
+/// may look different than in other renderers.
 @immutable
 class SvgPaths(String svg, {this.merge = true}) {
   /// Create from an [svg] string, and perform an optional [merge]
@@ -25,13 +29,17 @@ class SvgPaths(String svg, {this.merge = true}) {
   /// Create an [SvgPaths] from a [fileName] in the `assets` folder,
   /// reachable via the [cache] (by default, [Flame.assets]), and
   /// optionally [merge] consecutive paths with identical paints.
+  ///
+  /// When a [package] is given, the [fileName] is resolved relative to the
+  /// assets of that package.
   static Future<SvgPaths> fromFile(
     String fileName, {
     AssetsCache? cache,
+    String? package,
     bool merge = true,
   }) async {
     final assets = cache ?? Flame.assets;
-    final svg = await assets.readFile(fileName);
+    final svg = await assets.readFile(fileName, package: package);
     return SvgPaths(svg, merge: merge);
   }
 
@@ -169,8 +177,8 @@ class SvgPaths(String svg, {this.merge = true}) {
     // Walk all vector instructions, considering only path commands.
     for (final c in _instructions.commands) {
       if (c.type != .path) {
-        // Other commands, like clipping, separate the paths around them.
-        debugPrint('SVG skipping draw command = $c');
+        // Other commands, like clipping, are not supported, but they still
+        // separate the paths around them.
         endRun();
         continue;
       }

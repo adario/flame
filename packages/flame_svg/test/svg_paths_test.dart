@@ -1,9 +1,14 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flame/cache.dart';
 import 'package:flame/extensions.dart';
 import 'package:flame_svg/svg_paths.dart';
+import 'package:flutter/services.dart' show AssetBundle;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+
+class _MockAssetBundle() extends Mock implements AssetBundle;
 
 String _svg(List<(String, String)> paths) {
   final buffer = StringBuffer(
@@ -126,6 +131,20 @@ void main() {
         expect(SvgPaths(svgOf(lines, style), merge: false).length, 2);
       });
 
+      test('does not merge paths across an unsupported command', () {
+        // The clipped path in the middle is separated from the others by the
+        // clip command and the restore command.
+        const svg =
+            '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"> '
+            '<clipPath id="c"><rect width="50" height="50"/></clipPath> '
+            '<path d="M0 0L20 0L20 20Z" fill="#ff0000"/> '
+            '<g clip-path="url(#c)"> '
+            '<path d="M30 30L40 30L40 40Z" fill="#ff0000"/> </g> '
+            '<path d="M60 60L70 60L70 70Z" fill="#ff0000"/> </svg>';
+        expect(SvgPaths(svg).length, 3);
+        expect(SvgPaths(svg.replaceAll('clip-path="url(#c)"', '')).length, 1);
+      });
+
       testWidgets('keeps the overlap of even-odd paths filled', (tester) async {
         final svg = SvgPaths(
           svgOf([a, overlapsA], 'fill-rule="evenodd"'),
@@ -138,6 +157,46 @@ void main() {
           return data.getUint8((35 * 100 + 35) * 4 + 3);
         }))!;
         expect(alpha, 255);
+      });
+    });
+
+    group('fromFile', () {
+      final svg = _svg([('#ff0000', ''), ('#ff0000', '')]);
+
+      AssetsCache cacheOf(AssetBundle bundle) {
+        when(() => bundle.loadString(any())).thenAnswer((_) async => svg);
+        return AssetsCache(bundle: bundle);
+      }
+
+      test('reads the file via the given cache', () async {
+        final bundle = _MockAssetBundle();
+        final paths = await SvgPaths.fromFile(
+          'assets/svgs/a.svg',
+          cache: cacheOf(bundle),
+        );
+        verify(() => bundle.loadString('assets/svgs/a.svg')).called(1);
+        expect(paths.length, 1);
+      });
+
+      test('reads the file within the given package', () async {
+        final bundle = _MockAssetBundle();
+        await SvgPaths.fromFile(
+          'assets/svgs/a.svg',
+          cache: cacheOf(bundle),
+          package: 'my_pkg',
+        );
+        verify(
+          () => bundle.loadString('packages/my_pkg/assets/svgs/a.svg'),
+        ).called(1);
+      });
+
+      test('passes on the merge', () async {
+        final paths = await SvgPaths.fromFile(
+          'assets/svgs/a.svg',
+          cache: cacheOf(_MockAssetBundle()),
+          merge: false,
+        );
+        expect(paths.length, 2);
       });
     });
 

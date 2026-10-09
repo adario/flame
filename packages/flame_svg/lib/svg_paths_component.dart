@@ -1,6 +1,7 @@
 import 'dart:math' show min;
 import 'dart:ui' show Paint, PaintingStyle;
 
+import 'package:flame/cache.dart' show AssetsCache;
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
 import 'package:flame/extensions.dart';
@@ -63,9 +64,16 @@ class SvgPathsComponent(
 
   /// Load an [SvgPaths] object from the given [svgName], and create
   /// an [SvgPathsComponent] from it.
+  ///
+  /// The file is read from the [assetsPath] folder (see [assetPath]) via
+  /// the [cache], within the given [package] if any, and its paths are
+  /// optionally merged, see [SvgPaths.fromFile].
   static Future<SvgPathsComponent> load(
     String svgName, {
     String? assetsPath,
+    AssetsCache? cache,
+    String? package,
+    bool merge = true,
     SvgHitboxes hitboxes = SvgHitboxes.single,
     bool? renderHitboxes,
     bool? filter,
@@ -79,7 +87,12 @@ class SvgPathsComponent(
     int? priority,
     ComponentKey? key,
   }) async {
-    final svg = await SvgPaths.fromFile(assetPath(svgName, assetsPath));
+    final svg = await SvgPaths.fromFile(
+      assetPath(svgName, assetsPath),
+      cache: cache,
+      package: package,
+      merge: merge,
+    );
     return SvgPathsComponent(
       svg,
       hitboxes: hitboxes,
