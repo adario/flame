@@ -51,6 +51,21 @@ Some limits of the measures:
 - The numbers depend on the size of the window, which is printed at the start.
 
 
+## drawImage vs drawPicture
+
+`svg_picture_benchmark_app.dart` runs the same cases, to compare the images
+that `Svg` draws with `drawImage` and the picture that it draws them from. It
+replaces `SvgPaths` with:
+
+- `Svg picture`: a `PictureSvg`, which is only meant for the benchmarks, and
+  draws the picture of its SVG file with `drawPicture` in every frame, without
+  caching any image of it.
+
+Its summaries list the frames per second of each renderer, and the frames per
+second and the loads of `Svg picture` divided by those of `Svg` and of
+`Svg fixed`.
+
+
 ## Running
 
 The benchmark runs as an app in a profile or release build, from the
@@ -69,7 +84,10 @@ flutter build macos --profile -t ../packages/flame_svg/benchmark/svg_game_benchm
 build/macos/Build/Products/Profile/examples.app/Contents/MacOS/examples
 ```
 
-The app prints the tables and exits when it is done, after about 12 minutes.
+To run the other benchmark, replace `svg_game_benchmark_app.dart` with
+`svg_picture_benchmark_app.dart`.
+
+Each app prints the tables and exits when it is done, after about 12 minutes.
 Use `--release` instead of `--profile` for a release build, where the frame
 timings are reported once per second instead of 10 times.
 
