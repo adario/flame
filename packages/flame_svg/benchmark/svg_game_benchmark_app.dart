@@ -30,8 +30,8 @@ const _counts = [100, 500, 1000];
 const _warmup = Duration(seconds: 1);
 const _measure = Duration(seconds: 4);
 
-/// How long to wait for the timings of the last frames of a case, which the
-/// engine reports in batches, every second in release mode.
+/// How long at least no new timings must come in before a case is done, since
+/// the engine reports them in batches, every second in release mode.
 const _drain = kReleaseMode
     ? Duration(milliseconds: 1200)
     : Duration(milliseconds: 300);
@@ -156,9 +156,9 @@ Future<void> main() async {
           ui.Image.onCreate = (_) => images++;
           await Future<void>.delayed(_measure);
           ui.Image.onCreate = null;
-          await Future<void>.delayed(_drain);
           game.value = null;
           await WidgetsBinding.instance.endOfFrame;
+          await _settle(timings);
           svg?.dispose();
 
           final result = _Result.of(
@@ -194,6 +194,21 @@ Future<void> main() async {
   }
   _printSummaries(results);
   exit(0);
+}
+
+/// Waits until the engine has reported the timings of all the frames of a
+/// case, which a slow raster can delay by seconds, so that they do not end up
+/// in the next case.
+Future<void> _settle(List<FrameTiming> timings) async {
+  final longest = timings
+      .map((timing) => timing.rasterDuration)
+      .fold(Duration.zero, (a, b) => a > b ? a : b);
+  final quiet = _drain > longest * 2 ? _drain : longest * 2;
+  int count;
+  do {
+    count = timings.length;
+    await Future<void>.delayed(quiet);
+  } while (timings.length != count);
 }
 
 /// Whether the frames are drawn in the given lifecycle [state].
@@ -373,10 +388,15 @@ class _Result({
   final bool hidden;
 }
 
-double _mean(List<int> values) =>
-    values.reduce((a, b) => a + b) / values.length;
+/// NaN when a case has too few frames to measure.
+double _mean(List<int> values) => values.isEmpty
+    ? double.nan
+    : values.reduce((a, b) => a + b) / values.length;
 
 double _p90(List<int> values) {
+  if (values.isEmpty) {
+    return double.nan;
+  }
   final sorted = [...values]..sort();
   return sorted[((sorted.length - 1) * 0.9).round()].toDouble();
 }
