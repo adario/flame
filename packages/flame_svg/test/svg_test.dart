@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
-import 'dart:ui' as ui;
+import 'dart:ui' as ui show Image;
 
 import 'package:flame/extensions.dart';
 import 'package:flame_svg/svg.dart' as flame_svg;

@@ -14,6 +14,15 @@ class FlameConnection._(
   final String _isolateId,
   final Set<String> _extensions,
 ) {
+  /// Creates a connection through a [service] that is already connected, to
+  /// the isolate with [isolateId] that registered the Flame [extensions].
+  FlameConnection.withService(
+    String uri,
+    VmService service,
+    String isolateId,
+    Set<String> extensions,
+  ) : this._(uri, service, isolateId, extensions);
+
   static const _extensionPrefix = 'ext.flame_devtools.';
 
   /// Connects to the Dart VM Service at [uri] and finds the isolate that runs
@@ -95,6 +104,15 @@ class FlameConnection._(
       );
       return response.json ?? {};
     } on RPCError catch (error, stackTrace) {
+      if (_isDisconnected(error)) {
+        Error.throwWithStackTrace(
+          const FlameCliException(
+            'The game is no longer running, the connection to it was closed.',
+            exitCode: ExitCode.unavailable,
+          ),
+          stackTrace,
+        );
+      }
       Error.throwWithStackTrace(
         FlameCliException(
           error.details ?? error.message,
@@ -116,6 +134,13 @@ class FlameConnection._(
   }
 
   Future<void> dispose() => _service.dispose();
+
+  static bool _isDisconnected(RPCError error) {
+    return error.code == RPCErrorKind.kServiceDisappeared.code ||
+        error.code == RPCErrorKind.kConnectionDisposed.code ||
+        (error.code == RPCErrorKind.kServerError.code &&
+            error.message == RPCErrorKind.kConnectionDisposed.message);
+  }
 }
 
 /// The service extensions of the game, with typed arguments and results.
@@ -200,10 +225,13 @@ extension FlameServiceExtensions on FlameConnection {
 
   /// Renders the game through the camera, or the world directly when
   /// [world] is true or a [rect] in world coordinates is given.
+  ///
+  /// See [SnapshotOptions] for the other [options].
   Future<Snapshot> getGameSnapshot({
     required double pixelRatio,
     bool world = false,
     WorldRect? rect,
+    SnapshotOptions options = const SnapshotOptions(),
   }) async {
     return Snapshot.fromJson(
       await call(
@@ -213,21 +241,42 @@ extension FlameServiceExtensions on FlameConnection {
           if (world) 'world': 'true',
           if (rect != null)
             'rect': '${rect.x},${rect.y},${rect.width},${rect.height}',
+          ...options.args,
         },
       ),
     );
   }
 
   /// Renders the component with the given [id].
+  ///
+  /// See [SnapshotOptions] for the other [options].
   Future<Snapshot> getComponentSnapshot(
     int id, {
     required double pixelRatio,
+    SnapshotOptions options = const SnapshotOptions(),
   }) async {
     return Snapshot.fromJson(
       await call(
         'getComponentSnapshot',
-        args: {'id': '$id', 'pixelRatio': '$pixelRatio'},
+        args: {'id': '$id', 'pixelRatio': '$pixelRatio', ...options.args},
       ),
+    );
+  }
+
+  /// Where the [component] is on the canvas, at its [anchor], which is either
+  /// a name like `center` or `x,y` between 0 and 1, and the center when it is
+  /// not given.
+  Future<Vector2> getComponentCanvasPosition(
+    ComponentReference component, {
+    String? anchor,
+  }) async {
+    final response = await call(
+      'getComponentCanvasPosition',
+      args: {...component.args, 'anchor': ?anchor},
+    );
+    return (
+      x: (response['x'] as num).toDouble(),
+      y: (response['y'] as num).toDouble(),
     );
   }
 

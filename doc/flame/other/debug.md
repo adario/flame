@@ -41,9 +41,18 @@ isolate that runs the game. Every `id` parameter is the `hashCode` of a componen
   parameter and returns `snapshot` (a base64 encoded PNG image), `width` and `height`. With
   `world` set to `true` the world is rendered directly instead of through the camera, and with
   `rect` given as `x,y,width,height` in world coordinates only that part of the world is rendered.
+  The response also holds the `pixelRatio` that the image was rendered with, which is lower than
+  the requested one when the optional `maxSize` parameter, the maximum length in pixels of the
+  longest side of the image, would otherwise be exceeded. With `annotate` set to `true` the
+  outlines of the visible position components are drawn on the image with their id and type, and
+  `annotations` lists them with their `id`, `name` and `box`, as `[x, y, width, height]` in the
+  pixel coordinates of the image. The optional `annotationFilter` is a regular expression that is
+  matched case insensitively against the type to only annotate some components.
 - `ext.flame_devtools.getComponentSnapshot`: Renders a single component. It takes the `id` of the
   component and an optional `pixelRatio` parameter, and returns `snapshot` (a base64 encoded PNG
-  image). It responds with an invalid parameters error if no component with that id was found.
+  image), `width`, `height` and `pixelRatio`. It takes the same `maxSize`, `annotate` and
+  `annotationFilter` parameters as `getGameSnapshot`. It responds with an invalid parameters error
+  if no component with that id was found.
 - `ext.flame_devtools.getComponentTree`: Returns the `component_tree`, where every node has an
   `id`, a `name`, the `toString` of the component, its `attributes` and its `children`. The
   attributes are the `priority` of the component, and for a `PositionComponent` also its
@@ -77,6 +86,10 @@ isolate that runs the game. Every `id` parameter is the `hashCode` of a componen
   coordinates, with `steps` updates in between.
 - `ext.flame_devtools.key`: Delivers the `key` with the given name to the `onKeyEvent` of the
   game, where `action` is `press`, `down` or `up`.
+- `ext.flame_devtools.getComponentCanvasPosition`: Returns the `x`, `y` in canvas coordinates of
+  the `anchor` (the center by default) of the `PositionComponent` with the given `id`, or with
+  the `ComponentKey` named `key`, through the camera that shows it. It fails if the component is
+  not visible on the canvas.
 
 If you have multiple games in your app, only the last one created is connected, see
 `DevToolsService.initWithGame` to change it.
