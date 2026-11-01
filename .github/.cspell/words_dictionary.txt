@@ -1,16 +1,19 @@
 # actual english words (or common abbreviations) missing from CSpell
 bilinearly
 bloodlust
+cicd
 collidable
 collidables
 evenodd
 gamepads
+genhtml
 grayscale
 hoverable
 Hoverables
 inactives
 layouting
 miterlimit
+mocktail
 NTSC
 orientable
 platformer
